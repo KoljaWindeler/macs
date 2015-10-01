@@ -1,0 +1,68 @@
+-- phpMyAdmin SQL Dump -- version 4.0.10deb1 -- http://www.phpmyadmin.net -- -- Host: localhost -- Generation Time: Oct 01, 2015 at 09:31 PM -- Server version: 
+5.5.44-0ubuntu0.14.04.1 -- PHP Version: 5.5.9-1ubuntu4.11 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO"; SET time_zone = "+00:00"; /*!40101 SET 
+@OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */; /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */; /*!40101 SET 
+@OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */; /*!40101 SET NAMES utf8 */; -- -- Database: `macs` -- -- -------------------------------------------------------- -- -- Table 
+structure for table `access` -- CREATE TABLE IF NOT EXISTS `access` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `mach_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`),
+  KEY `id_2` (`id`) ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=33 ; -- -- Dumping data for table `access` -- INSERT INTO `access` (`id`, `user_id`, `mach_id`) VALUES 
+(1, 1, 14), (2, 3, 3), (3, 3, 4), (4, 3, 14), (5, 4, 4), (6, 4, 5), (7, 4, 14), (8, 5, 4), (9, 5, 5), (10, 5, 12), (11, 5, 14), (12, 6, 4), (13, 6, 14), (14, 7, 4), (15, 7, 14), 
+(16, 8, 3), (17, 8, 4), (18, 8, 14), (19, 9, 4), (20, 9, 8), (21, 9, 14), (22, 10, 4), (23, 10, 14), (24, 11, 4), (25, 11, 14), (26, 14, 13), (27, 14, 14), (28, 16, 13), (29, 16, 
+14), (30, 17, 14), (31, 18, 14), (32, 19, 14); -- -------------------------------------------------------- -- -- Table structure for table `log` -- CREATE TABLE IF NOT EXISTS 
+`log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `timestamp` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `machine_id` int(11) NOT NULL,
+  `event` text NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`) ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=65 ; -- -- Dumping data for table `log` -- INSERT INTO `log` (`id`, `timestamp`, `user_id`, 
+`machine_id`, `event`) VALUES (1, 1443723197, 2, 2, 'Unlocked'), (2, 1443725197, 2, 2, 'Locked'), (3, 1443720197, 0, 2, 'Updated'), (4, 1443726087, 0, 0, 'User updated'), (5, 
+1443726466, 2, 0, 'User updated'), (6, 1443726498, 1, 0, 'User updated'), (7, 1443726652, 3, 0, 'User updated'), (8, 1443726707, 0, 0, 'User created'), (9, 1443726856, 0, 0, 'User 
+created'), (10, 1443726886, 6, 0, 'User updated'), (11, 1443727014, 14, 0, 'User created'), (12, 1443727137, 15, 0, 'User created'), (13, 1443727315, 16, 0, 'User created'), (14, 
+1443727326, 16, 0, 'User updated'), (15, 1443727411, 0, 2, 'Machine updated'), (16, 1443728057, 1, 2, '"test"'), (17, 1443728069, 1, 2, 'test'), (18, 1443729124, 0, 0, 'access 
+right updated'), (19, 1443729136, 0, 0, 'access right updated'), (20, 1443729139, 0, 0, 'access right updated'), (21, 1443729681, 1, 0, 'User updated'), (22, 1443730014, 1, 0, 
+'User updated'), (23, 1443730704, 2, 0, 'User deleted'), (24, 1443731135, 1, 0, 'User updated'), (25, 1443731139, 2, 0, 'User deleted'), (26, 1443731592, 1, 0, 'User updated'), 
+(27, 1443731696, 12, 0, 'User deleted'), (28, 1443731708, 13, 0, 'User deleted'), (29, 1443731739, 15, 0, 'User deleted'), (30, 1443731767, 5, 0, 'User updated'), (31, 1443731963, 
+0, 2, 'Machine deleted'), (32, 1443731967, 0, 12, 'Machine deleted'), (33, 1443732010, 0, 2, 'Machine deleted'), (34, 1443732087, 0, 13, 'Machine created'), (35, 1443732099, 0, 
+13, 'Machine updated'), (36, 1443732218, 0, 0, 'access right updated'), (37, 1443732253, 0, 13, 'Machine updated'), (38, 1443732262, 0, 0, 'access right updated'), (39, 
+1443732268, 0, 0, 'access right updated'), (40, 1443732385, 0, 11, 'Machine deleted'), (41, 1443732419, 0, 0, 'access right updated'), (42, 1443733093, 0, 0, 'access right 
+updated'), (43, 1443733253, 14, 0, 'User updated'), (44, 1443733817, 0, 0, 'Badge ID already in db, entry rejected'), (45, 1443733817, 17, 0, 'User created'), (46, 1443733843, 0, 
+0, 'Badge ID already in db, entry rejected'), (47, 1443733843, 18, 0, 'User created'), (48, 1443733918, 0, 0, 'Badge ID already in db, entry rejected'), (49, 1443733932, 0, 0, 
+'Badge ID already in db, entry rejected'), (50, 1443733935, 0, 0, 'Badge ID already in db, entry rejected'), (51, 1443733938, 19, 0, 'User created'), (52, 1443734165, 0, 0, 'Mach 
+ID already in db, entry rejected'), (53, 1443734170, 0, 0, 'Mach ID already in db, entry rejected'), (54, 1443734174, 0, 14, 'Machine created'), (55, 1443734196, 0, 0, 'access 
+right updated'), (56, 1443734453, 0, 0, 'Badge ID already in db, entry rejected'), (57, 1443734531, 20, 0, 'User created'), (58, 1443734542, 20, 0, 'User deleted'), (59, 
+1443735013, 18, 0, 'User deleted'), (60, 1443735014, 19, 0, 'User deleted'), (61, 1443735015, 17, 0, 'User deleted'), (62, 1443735018, 14, 0, 'User deleted'), (63, 1443735020, 11, 
+0, 'User deleted'), (64, 1443735026, 6, 0, 'User updated'); -- -------------------------------------------------------- -- -- Table structure for table `mach` -- CREATE TABLE IF 
+NOT EXISTS `mach` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` text NOT NULL,
+  `mach_id` int(11) NOT NULL,
+  `desc` text NOT NULL,
+  `last_seen` int(11) NOT NULL,
+  `active` int(1) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`) ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=15 ; -- -- Dumping data for table `mach` -- INSERT INTO `mach` (`id`, `name`, `mach_id`, `desc`, 
+`last_seen`, `active`) VALUES (2, 'Band saw 111', 123112, 'Fine blade3', 1, 0), (3, 'Band saw 2', 123, 'Fine blade', 1, 1), (4, 'Band saw 3', 123, 'Fine blade', 1, 1), (5, 'CNC1', 
+123, 'Gizzmo', 1, 1), (6, 'CNC2', 123, 'Gizzmo', 1, 1), (7, 'gizzmo', 123, 'Gizzmo', 1, 1), (8, 'Locker1', 123, 'Gizzmo2', 1, 1), (9, 'Locker2', 123, 'Gizzmo', 1, 1), (10, 
+'Frase', 999, 'neu!', 0, 1), (11, 'Frase', 999, 'neu!', 0, 0), (12, 'Koljas test', 12, 'ganz toll', 0, 1), (13, 'Tabel Saw 2', 111, 'room 2, big one!', 0, 1), (14, 'Cutter', 1234, 
+'very sharp', 0, 1); -- -------------------------------------------------------- -- -- Table structure for table `user` -- CREATE TABLE IF NOT EXISTS `user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` text NOT NULL,
+  `badge_id` text NOT NULL,
+  `email` text NOT NULL,
+  `last_seen` int(11) NOT NULL,
+  `active` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`),
+  KEY `id_2` (`id`) ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=21 ; -- -- Dumping data for table `user` -- INSERT INTO `user` (`id`, `name`, `badge_id`, `email`, 
+`last_seen`, `active`) VALUES (1, 'Kolja', '1234sss', 'KKoolljjaa@gmail.com', 1443690569, 1), (2, 'asd', '123', '', 1443690569, 0), (3, 'Peter Pan', '5678', 'geroge@internet.de', 
+1443690569, 1), (4, 'Homer', '5678', 'geroge@internet.de', 1443690569, 1), (5, 'Marge', '56789', 'geroge@internet.de', 1443690569, 1), (6, 'Barto', '5678', 'george@internet.de', 
+1443690569, 1), (7, 'Lisa', '5678', 'geroge@internet.de', 1443690569, 1), (8, 'Maggi', '5678', 'geroge@internet.de', 1443690569, 1), (9, 'Richard', '9871', 'Rw@gmial.com', 0, 1), 
+(10, 'Richard', '9871', 'Rw@gmial.com', 0, 1), (11, 'Marianne', '123', '-', 0, 0), (14, 'asdasd', '112', '-', 0, 0), (16, 'Kolja3', '98765432', '-', 0, 1), (17, 'Kolja Windeler', 
+'112', 'Kolja@windeler.deom', 0, 0), (18, 'Kolja Windeler', '112', 'Kolja@windeler.deom', 0, 0), (19, 'Kolja Windeler', '113', 'Kolja@asdasd.com', 0, 0), (20, 'Name', '1231231', 
+'123123@gmail.com', 0, 0); /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */; /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */; /*!40101 SET 
+COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
