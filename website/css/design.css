@@ -1,0 +1,663 @@
+/******************************** GENERAL SETUP ***********************************/
+html{
+	height:100%;
+	-webkit-font-smoothing:antialiased;
+	margin:0;
+	padding:0;
+	border:0;
+}
+
+body{
+	font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;
+	margin:0;
+	padding:0;
+	border:0;
+	background:url('../images/bg.png') no-repeat center center fixed; 
+	background-attachment: fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+	text-align: right;
+}
+
+input,button,select,option{
+	font-family:Arial,'Helvetica Neue',Helvetica,sans-serif
+}
+
+table {
+    border-collapse: collapse;
+	color:#ffffff;
+}
+
+.maintable{
+	text-align: left!important;
+	color:#eeeeee;
+	width: 70%;
+}
+
+
+table, th, td {
+    border: 0px solid black;
+	margin: 0 auto;  /* setzt den block mittig */
+}
+
+.fillme{
+	width:98%;
+	background:rgba(255,255,255,0.45)!important;
+	color:rgba(0,0,0,0.9);
+}
+
+.header{
+	width:100%;
+	background:#232323;
+	color:#eeeeee;
+	font-weight:bold;
+	font-size:17px;
+	line-height:40px;
+}
+a:visited,a:active{
+	color:#eeeeee;
+}
+
+.subheader{
+	width:100%;
+	background:#333333;
+	color:#eeeeee;
+	font-weight:bold;
+	font-size:15px;
+	line-height:30px;
+}
+
+th.rotate {
+  /* Something you can count on */
+  height: 120px;
+  white-space: nowrap;
+}
+
+th.rotate > div {
+  transform: 
+    /* Magic Numbers */
+    translate(-10px, 40px)
+    /* 45 is really 360 - 45 */
+    rotate(270deg);
+  width: 30px;
+}
+th.rotate > div > span {
+  border-bottom: 1px solid #ccc;
+  padding: 5px 10px;
+}
+
+.spacer{
+	line-height:30px;
+}
+
+a.button{
+	color:rgba(0,0,0,0.72)!important;
+	font-size:17px;
+	font-weight:bold;
+	font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;
+	line-height:40px;
+	text-align:center;
+	text-decoration:none;
+	text-shadow:0 1px 1px rgba(255,255,255,0.37);
+	background:#BABABA; /*6fbbff; /*rgba(190,190,190,1);	*/
+	border:1px solid #2a3f56;
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	border-radius:6px;
+	-moz-box-shadow:0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(255,255,255,0.7) inset;
+	-webkit-box-shadow:0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(255,255,255,0.7) inset;
+	box-shadow:0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(255,255,255,0.7) inset;
+	margin:6px auto 0 auto;
+	padding:0 15px;
+	cursor:pointer;
+	display:inline-block;
+	position:relative;
+	-moz-background-clip:padding-box;
+	-webkit-background-clip:padding-box;
+	background-clip:padding-box;
+	height:40px;
+	white-space:nowrap;
+	outline-width:0;
+	margin-right: 4px;
+	margin-left: 4px;
+}
+
+a.button_deactivated{
+	color:rgba(150,150,150,0.72)!important;
+}
+
+a.button_active{
+	background: #9B2424;
+}
+
+a.button:active{
+	-moz-box-shadow:0 1px 0 rgba(255,255,255,0.3),0 1px 3px rgba(0,0,0,0.7) inset;
+	-webkit-box-shadow:0 1px 0 rgba(255,255,255,0.3),0 1px 3px rgba(0,0,0,0.7) inset;
+	box-shadow:0 1px 0 rgba(255,255,255,0.3),0 1px 3px rgba(0,0,0,0.7) inset;
+	opacity:1
+}
+
+div.float_left, img.float_left {
+	float: left;
+}
+
+div.inline_block {
+	display: inline-block;
+}
+
+div.clear_both {
+	clear: both;
+}
+
+div.center, img.center {
+	margin: 0 auto;  /* setzt den block mittig */
+	text-align: center!important;
+	margin-left: auto;
+	margin-right: auto;	
+}
+
+div.center_hor {
+	position:absolute;
+	top: 50%;
+	width: 100%;
+}
+div.loading {
+	text-align: center;
+	margin: 0 auto;  /* setzt den block mittig */
+	clear: both;
+	color: #EFEFEF; 
+}
+/******************************************** GENERAL SETUP *******************************************/
+/******************************** floating text "welcome to glubsch ***********************************/
+.logo_l1, .logo_l2{
+	color:#EFEFEF;
+	font-size:18px;
+	text-shadow:0 1px 4px rgba(0,0,0,0.68);
+	margin-left:70px;
+	text-align: left;
+}
+.logo_l2{
+	font-size:75px;
+	letter-spacing: 6px;
+	margin-bottom:20px;
+}
+
+.logo_l1{
+	margin-top:20px;
+}
+/**************************** floating text "welcome to glubsch *********************************/
+/******************************** the box that groups the m2m ***********************************/
+div.area_node {
+	color: #212121;
+	background-color:rgba(0,0,0,0.7);
+	padding-bottom: 1%; 
+	padding-top: 0.5%; /*over the "home" */
+	margin-bottom: 1%;
+
+	vertical-align: top;
+	text-align:center;
+}
+
+div.area_header {
+	padding-top: 20px;
+	padding-left: 20px;
+	padding-bottom: 10px;
+	overflow: hidden;
+	display: inline-block;
+	text-align: center;
+	clear: both;
+}
+
+img.area_header, div.area_header_text {
+	float: left;
+	margin-right: 15px;
+}
+
+div.area_header_status{
+	text-align: left;	
+	font-size: 13px;
+}
+
+div.area_header_title{
+	font-weight: bold;
+	color: #dddddd;
+	font-size:25px;
+	text-align: left;	
+}
+
+/******************************* the box that groups the m2m **********************************/
+/******************************** the box that holds an m2m ***********************************/
+div.m2m_header {
+	padding-top: 20px;
+	padding-left: 20px;
+	padding-bottom: 10px;
+	overflow: hidden;
+	display: inline-block;
+	margin: 0 auto;  /* setzt den block mittig */
+	text-align: center;
+	clear:left;
+}
+
+div.m2m_header_first_line {
+	padding-left: 10px;
+	padding-top: 0px;
+}
+
+img.m2m_header, div.m2m_header_text {
+	float: left;
+	margin-right: 15px;
+}
+
+img.m2m_header {
+	margin-top: 12px;
+}
+
+div.area_m2m {
+	text-align: left;
+	background: rgba(143, 152, 162,0.8);
+	padding-top: 1%;
+	padding-left: 1%;
+	padding-bottom: 2%;
+	margin-left: 2%;
+	margin-right: 2%;
+}
+
+div.m2m_text, a.m2m_text{
+	font-size:12px;
+	text-align: left;
+}
+
+div.m2m_text_name{
+	font-size:20px;
+	text-align: left;
+}
+
+div.m2m_header_button{
+	margin: 0 auto;  /* setzt den block mittig */
+	text-align: center;
+	clear:left;
+}
+
+/******************************** the box that holds an m2m ***********************************/
+/**************************************** glowing dot *****************************************/
+div.glow_dot{
+	border-radius: 50%;
+	display: inline-block;
+	height: 5px;
+	width: 5px;
+
+	margin-top: 5px;
+	margin-right: 8px;
+	margin-left: 3px;
+}
+
+div.glow_red {
+	-webkit-box-shadow: 0px 0px 6px 3px rgba(255,0,0,1);
+	-moz-box-shadow: 0px 0px 6px 3px rgba(255,0,0,1);
+	box-shadow: 0px 0px 6px 3px rgba(255,0,0,1);
+	background-color: #ff0000;
+}
+
+div.glow_green {
+	-webkit-box-shadow: 0px 0px 6px 3px rgba(0,255,0,1);
+	-moz-box-shadow: 0px 0px 6px 3px rgba(0,255,0,1);
+	box-shadow: 0px 0px 6px 3px rgba(0,255,0,1);
+	background-color: #00ff00;
+}
+
+div.glow_purple {
+	-webkit-box-shadow: 0px 0px 6px 3px rgba(255,0,255,1);
+	-moz-box-shadow: 0px 0px 6px 3px rgba(255,0,255,1);
+	box-shadow: 0px 0px 6px 3px rgba(255,0,255,1);
+	background-color: #ff00ff;
+}
+
+div.glow_yellow {
+	-webkit-box-shadow: 0px 0px 6px 3px rgba(255,255,0,1);
+	-moz-box-shadow: 0px 0px 6px 3px rgba(255,255,0,1);
+	box-shadow: 0px 0px 6px 3px rgba(255,255,0,1);
+	background-color: #ffff00;
+}
+/**************************************** glowing dot *****************************************/
+/**************************************** m2m icons *****************************************/
+
+/**************************************** m2m buttons *****************************************/
+/* TOP section in the area*/
+img.area_sym_protected{ 	
+	content:url("../images/ic_place_green_48dp.png"); 			
+	height:88px;
+	width: 57px;
+}
+.area_sym_protected {		
+	color: #36BF00;	
+	font-weight:bold; 
+	text-shadow: 0 -1px #000000, 1px 0 #000000, 0 1px #000000, -1px 0 #000000;
+}
+img.area_sym_not_protected{	
+	content:url("../images/ic_place_red_48dp.png");				
+	height:88px;
+	width: 57px;
+}
+.area_sym_not_protected{ 	
+	color: #E94B36; 
+	font-weight:bold; 
+	text-shadow: 0 -1px #000000, 1px 0 #000000, 0 1px #000000, -1px 0 #000000;
+}
+
+/*img.cam_sym{	content:url("../images/ic_camera_black_48dp.png");}*/
+
+/* M2M Section */
+.live_sym,.color_sym,.alarm_sym,
+.live_sym_not_available,.color_sym_not_available,.alarm_sym_not_available,
+.live_sym_active,.color_sym_active,.alarm_sym_active,.alarm_sym_open_alerts{
+	cursor:pointer;
+	display:inline-block;
+	position:relative;
+	-moz-background-clip:padding-box;
+	-webkit-background-clip:padding-box;
+	background-clip:padding-box;
+	height:50px;
+	width:50px;
+	white-space:nowrap;
+	outline-width:0;
+	margin-right: 30px;
+	margin-left: 30px;
+}
+
+a.live_sym_not_available{ 		content:url("../images/ic_camera_gray_48dp.png");	}
+a.live_sym{ 				content:url("../images/ic_camera_black_48dp.png"); }
+a.live_sym_active{ 			content:url("../images/ic_camera_red_48dp.png");	}
+div.toggle_liveview_text::after {	content:'glubsch!';	}
+div.toggle_liveview_text_active {	color:#d80000;		}
+
+a.color_sym_not_available{		content:url("../images/ic_flare_gray_48dp.png");	}
+a.color_sym{				content:url("../images/ic_flare_black_48dp.png");	}
+a.color_sym_active{			content:url("../images/ic_flare_red_48dp.png");	}
+div.toggle_lightcontrol_text::after {	content:'color';	}
+div.toggle_lightcontrol_text_active {	color:#d80000;		}
+
+a.alarm_sym{				content:url("../images/ic_notifications_black_48dp.png");	}
+a.alarm_sym_open_alerts{		content:url("../images/ic_notifications_red_48dp.png");	}
+a.alarm_sym_active{			content:url("../images/ic_notifications_red_48dp.png");	}
+div.toggle_alarms_text::after {		content:'alarms';	}
+div.toggle_alarms_text_active {		color:#d80000;		}
+
+div.toggle_text {
+	height:20px;
+	font-size:12px;
+}
+
+div.sym_text_not_available 		{	color:#555555;		}
+
+div.alarm_button{
+	position:relative;
+}
+
+div.alarm_sym_wrap{
+  	position: absolute;
+  	z-index: 2;
+	left: 0;
+	right: 0;
+	cursor: pointer;
+
+  	font-size: 20px;
+  	font-weight: bold;
+	margin-top: 12px;
+	color: #dddddd;
+}
+/**************************************** m2m buttons *****************************************/
+/**************************************** m2m alert navigation *****************************************/
+div.alert_navigation{
+        display: inline-block;
+        float:right;
+	margin-right:10px;
+}
+
+img.alert_navigation_next,img.alert_navigation_prev,
+img.alert_navigation_next_deactivated,img.alert_navigation_prev_deactivated {
+	width:16px;
+	height:11px;
+	margin-left:5px;
+	margin-right:5px;
+	color: #fcca04;
+	cursor: pointer;
+}
+img.alert_navigation_next{
+	content:url("../images/next.png");
+}
+img.alert_navigation_prev{
+	content:url("../images/prev.png");
+}
+img.alert_navigation_next_deactivated{
+	content:url("../images/next_d.png");
+}
+img.alert_navigation_prev_deactivated{
+	content:url("../images/prev_d.png");
+}
+
+div.alert_side{
+	padding-top:20px;
+	padding-left: 10px;
+	float: left;
+	vertical-align:bottom;
+}
+
+img.alert_preview{
+	padding-top:10px;
+}
+/**************************************** m2m alert navigation *****************************************/
+/**************************************** m2m light scroller *****************************************/
+div.light_controll_scroller{
+	width: 85%;
+	margin: 0 auto;  /* setzt den block mittig */
+	clear: both;
+	height: 20px;
+}
+
+div.light_controll_color{
+	width: 85%;
+	margin: 0 auto;  /* setzt den block mittig */
+	height: 30px;
+	clear: both;
+	margin-top: 15px;
+}
+/**************************************** m2m light scroller *****************************************/
+/******************************************** MENU ***************************************************/
+div.menu{
+	position:fixed;
+	background: rgba(143, 152, 162, 1.0);
+	left: 0px;
+	top: 0px;
+	padding: 0 64px;
+	height: 100%;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+	z-index: 10;
+	transform: translate(-150%, 0px);
+	transition: all 0.75s ease-in-out;
+}
+
+div.menu_active {
+	-webkit-transform: translate(0%, 0px);
+	transform: translate(0%, 0px);
+	transition: all 0.75s ease-in-out;
+}
+
+div.hamb {
+	border: 1px solid #374C77;
+	border-radius: 3px 3px 3px 3px;
+	cursor: pointer;
+	display: block;
+	height: 24px;
+	padding: 3px 4px 3px;
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	width: 25px;
+	background: #ededed;/*#4569b2;*/
+	background: -moz-linear-gradient(top, #4569b2 0%, #4062a5 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #4569b2), color-stop(100%, #4062a5));
+	background: -webkit-linear-gradient(top, #4569b2 0%, #4062a5 100%);
+	background: -o-linear-gradient(top, #4569b2 0%, #4062a5 100%);
+	background: -ms-linear-gradient(top, #4569b2 0%, #4062a5 100%);
+	background: linear-gradient(to bottom, #ededed 0%, #e2e2e2 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#4569b2', endColorstr='#4062a5', GradientType=0);
+	z-index:11;
+}
+
+div.info {
+	border: 1px solid #222222;
+	border-radius: 3px 3px 3px 3px;
+	cursor: pointer;
+	text-align: center!important;
+	margin-left: auto;
+	margin-right: auto;	
+	margin: 0 auto;  /* setzt den block mittig */
+	display: block;
+	height: 20px;
+	padding: 3px 4px 3px;
+	position: absolute;
+	top: 10px;
+	width: 250px;
+	background: #ebcb00;/*#4569b2;*/
+	z-index:11;
+}
+
+/*The white stripes in the hamburger button*/
+div.hamb_l {
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 2px 2px 2px 2px;
+    height: 2px;
+    margin-top: 3px;
+    width: 90%;
+}
+/******************************************** MENU ***************************************************/
+/*********************************** different resolutions *******************************************/
+/* BIG screen */
+@media only screen and (min-width: 768px) {
+
+	div.area_m2m {
+		margin-bottom: 1%;
+		margin-top: 3%;
+	}
+
+	div.area_node {
+		display: inline-block;
+		width:500px;
+
+		margin-left:1%;
+		margin-right: 3%;
+		padding-bottom: 1%; 
+		padding-top: 0.5%; /*over the "home" */
+		margin-bottom: 1%;
+		border:1px solid #000000;
+
+		-webkit-box-shadow: 10px 10px 20px 0px rgba(0,0,0,1); 
+		-moz-box-shadow: 10px 10px 20px 0px rgba(0,0,0,1);
+		box-shadow: 10px 10px 20px 0px rgba(0,0,0,1);
+	}
+
+}
+/* BIG screen */
+/* small screen */
+@media only screen and (max-width: 767px) {
+	h1{
+		font-size:150%;
+	}
+
+	p{
+		font-size:150%;
+	}
+
+	.logo_l2{
+		font-size:60px;
+		letter-spacing: 4px;
+		margin-bottom:10px;
+	}
+
+
+	div.m2m_text{
+		font-size:12px;
+	}
+
+	div.area_header_title{
+		font-size:25px;
+	}
+
+	div.area_header_status{
+		font-size:17px;
+	}
+
+	div.area_header{
+		-moz-border-radius:20px;
+		-webkit-border-radius:20px;
+		border-radius:20px;
+
+		padding-top:20px;
+		padding-left:0px;
+		padding-right:0px;
+		padding-bottom: 5px;
+	}
+	
+	div.area_m2m{
+		/*-moz-border-radius:10px;
+		-webkit-border-radius:10px;
+		border-radius:10px;*/
+		font-size:150%;
+		margin-top:3%;
+		margin-bottom:3%;
+	}
+
+	div.m2m_text_name{
+		/*font-size:30px;*/
+	}
+
+	.live_sym,.color_sym,.alarm_sym,.alarm_sym_open_alerts{
+		margin-right: 20px;
+		margin-left: 20px;
+	}
+
+	div.m2m_header {
+		padding-top: 8px;
+		padding-left: 20px;
+	}
+
+	img.m2m_header {
+		width: 32px;
+		height: 26px;
+	}
+
+	img.homesym{
+		width:84px;
+		height: 84px;
+	}
+
+	div.light_controll_scroller{
+		margin-bottom: 10px;
+	}
+
+	div.light_controll_color{
+		height: 50px;
+		margin-top:30px;
+		margin-bottom: 0px;
+	}
+	
+	div.area_node {
+		margin-left:2%;
+		margin-right: 2%;
+	}
+
+	
+}
+/* small screen */
+
+
+/* unused stuff */
+
+/*img.logo {	
+	content:url("../images/logoc.png");
+	width: 262px;
+	height: 285px;
+}*/
