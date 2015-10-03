@@ -88,9 +88,22 @@ $resume=0;
 
 		elseif($_POST["edit"]=="mach"){
 			if(isset($_POST["submit"]) & $_POST["submit"]=="delete"){ // delete
-				$stmt = $db->prepare("UPDATE  `macs`.`mach` SET `active` = 0 WHERE  `mach`.`id` =:id;");
+				// we are going to rename the machine id to the next freee nr above 900, get free nr
+				$request = $db->prepare('SELECT MAX(mach_id) FROM mach');
+				$request->execute();
+				foreach ($request as $row) {
+					$new_mach_id=$row["MAX(mach_id)"]+1;
+				};
+				if($new_mach_id<900){
+					$new_mach_id=900;
+				};
+				
+				// now, relabel machine
+				$stmt = $db->prepare("UPDATE  `macs`.`mach` SET `active` = 0, `mach_id`=".$new_mach_id." WHERE  `mach`.`id` =:id;");
 				$stmt->bindParam(":id",$_POST["eid"],PDO::PARAM_INT);
 				$stmt->execute();
+
+				
 				add_log($_POST["eid"],"-","Machine deleted");
 				show_info("Machine deleted");
 			}
