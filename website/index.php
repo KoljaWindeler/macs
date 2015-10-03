@@ -20,6 +20,11 @@ $resume=0;
 				$stmt = $db->prepare("UPDATE  `macs`.`user` SET `active` = 0 WHERE  `user`.`id` =:id;");
 				$stmt->bindParam(":id",$_POST["eid"],PDO::PARAM_INT);
 				$stmt->execute();
+
+				$stmt = $db->prepare("DELETE FROM  `macs`.`access` WHERE  `user_id` =:id;");
+				$stmt->bindParam(":id",$_POST["eid"],PDO::PARAM_INT);
+				$stmt->execute();
+
 				add_log("-",$_POST["eid"],"User deleted");
 				show_info("User deleted");
 			}
