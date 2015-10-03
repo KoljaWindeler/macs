@@ -25,42 +25,42 @@ $resume=0;
 			}
 			elseif(isset($_POST["submit"]) & $_POST["submit"]=="Add/Update"){
 				$execute=0;
-				if($_POST["e_id"]!=0){ // update
-					$stmt = $db->prepare("UPDATE  `macs`.`user` SET `name` = :name,`badge_id` = :badge_id,`email`=:email WHERE  `user`.`id` =:id;");
-					$stmt->bindParam(":id",$_POST["e_id"],PDO::PARAM_INT);
-					$execute=1;
+				// 1. check if the data make sense
+				if($_POST["e_name"]=="-" or empty($_POST["e_name"])){
+					$execute=0;
+					$resume=1;
+					show_info("You have to provide a name");
+				} elseif($_POST["e_badge"]=="-" or empty($_POST["e_badge"])){
+					$execute=0;
+					$resume=1;
+					show_info("You have to provide a Badge id");
+				} elseif($_POST["e_email"]=="-" or empty($_POST["e_email"])){
+					$execute=0;
+					$resume=1;
+					show_info("You have to provide a email");
 				} else {
-					// run some checks before we accept the data
-					// 1. check if there is already the same badge
-					$stmt = $db->prepare("SELECT COUNT(*) FROM `macs`.`user` WHERE badge_id=:badge_id");
-					$stmt->bindParam(":badge_id",$_POST["e_badge"],PDO::PARAM_INT);
-					$stmt->execute();
-					foreach($stmt as $row){
-						if($row["COUNT(*)"]>0){
-							$excute=0;
-							$resume=1;
-							add_log("-","-","Badge ID already in db, entry rejected");
-							show_info("Entry rejected, duplicate badge");
-						} else {
-							$stmt = $db->prepare("INSERT INTO  `macs`.`user` (`name`,`badge_id`,`email`,`active`) VALUE (:name,:badge_id,:email,1)");
-							$execute=1;
-						};
-					} // for each
-					// 2. check if the data make sense
-					if($_POST["e_name"]=="-" or empty($_POST["e_name"])){
-						$execute=0;
-						$resume=1;
-						show_info("You have to provide a name");
-					} elseif($_POST["e_badge"]=="-" or empty($_POST["e_badge"])){
-						$execute=0;
-						$resume=1;
-						show_info("You have to provide a Badge id");
-					} elseif($_POST["e_email"]=="-" or empty($_POST["e_email"])){
-						$execute=0;
-						$resume=1;
-						show_info("You have to provide a email");
-					};
-
+					if($_POST["e_id"]!=0){ // update
+						$stmt = $db->prepare("UPDATE  `macs`.`user` SET `name` = :name,`badge_id` = :badge_id,`email`=:email WHERE  `user`.`id` =:id;");
+						$stmt->bindParam(":id",$_POST["e_id"],PDO::PARAM_INT);
+						$execute=1;
+					} else {
+						// run some checks before we accept the data
+						// 2. check if there is already the same badge
+						$stmt = $db->prepare("SELECT COUNT(*) FROM `macs`.`user` WHERE badge_id=:badge_id");
+						$stmt->bindParam(":badge_id",$_POST["e_badge"],PDO::PARAM_INT);
+						$stmt->execute();
+						foreach($stmt as $row){
+							if($row["COUNT(*)"]>0){
+								$excute=0;
+								$resume=1;
+								add_log("-","-","Badge ID already in db, entry rejected");
+								show_info("Entry rejected, duplicate badge");
+							} else {
+								$stmt = $db->prepare("INSERT INTO  `macs`.`user` (`name`,`badge_id`,`email`,`active`) VALUE (:name,:badge_id,:email,1)");
+								$execute=1;
+							};
+						} // for each
+					} // else 
 				}
 				
 				if($execute==1){
@@ -238,6 +238,7 @@ if(isset($_POST["edit"])){
 		$e_name=$_POST["e_name"];
 		$e_email=$_POST["e_email"];
 		$e_badge=$_POST["e_badge"];
+		$e_id=$_POST["e_id"];
 	};
 };
 
