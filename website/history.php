@@ -18,10 +18,11 @@ if(isset($_GET["logme"]) && isset($_GET["event"]) && (isset($_GET["machine"]) ||
 function add_log($machine,$user,$event){
 	global $db;
 	//echo "adding ".$machine." ".$user." ".$event;
-	$stmt = $db->prepare("INSERT INTO  `macs`.`log` (`timestamp`,`user_id`,`machine_id`,`event`) VALUE (".time().",:user,:machine,:event)");
+	$stmt = $db->prepare("INSERT INTO  `macs`.`log` (`timestamp`,`user_id`,`machine_id`,`event`,`login_id`) VALUE (".time().",:user,:machine,:event,:login)");
 	$stmt->bindParam(":user",$user,PDO::PARAM_STR);
 	$stmt->bindParam(":machine",$machine,PDO::PARAM_STR);
 	$stmt->bindParam(":event",$event,PDO::PARAM_STR);
+	$stmt->bindParam(":login",$_SESSION['ID'],PDO::PARAM_INT);
 	$stmt->execute();
 };
 
