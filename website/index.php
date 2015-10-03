@@ -267,7 +267,7 @@ $o.='</td></tr><tr class="spacer"><td>&nbsp;</td></tr><tr class="header click '.
 
 /////////////// GET MACHINE ////////////////
 $o.='<table class="fillme"><tr class="subheader">
-<td>Name</td><td>Machine-ID</td><td>Description</td><td>last used</td><td>&nbsp;</td></tr>';
+<td>Name</td><td>Machine-Nr</td><td>Description</td><td>last used</td><td>&nbsp;</td></tr>';
 
 $o_mach="";
 $stmt = $db->prepare('SELECT * FROM mach WHERE `active`=1');
@@ -315,7 +315,7 @@ if(isset($_POST["edit"])){
 	};
 };
 $o.='<tr><td colspan="5">&nbsp;</td></tr><tr class="subheader">
-  <td>Name</td><td>Machine-ID</td><td>Description</td><td colspan="2">&nbsp;</td></tr><tr>
+  <td>Name</td><td>Machine-Nr</td><td>Description</td><td colspan="2">&nbsp;</td></tr><tr>
 	<form method="POST" action="index.php?show=mach">
 	<td><input type="text" name="e_name" value="'.$e_name.'"></td>
 	<td><input type="text" name="e_mach_nr" value="'.$e_mach_nr.'"></td>
