@@ -21,6 +21,15 @@ $resume=0;
 				$stmt->bindParam(":id",$_POST["eid"],PDO::PARAM_INT);
 				$stmt->execute();
 
+				// mark all machines that were affected by this deletation as updateable
+				$stmt = $db->prepare("SELECT `mach_id` FROM  `macs`.`access` WHERE  `user_id` =:id;");
+				$stmt->bindParam(":id",$_POST["eid"],PDO::PARAM_INT);
+				$stmt->execute();
+				foreach($stmt as $row){
+					set_mach_outdated($row["mach_id"],$db);
+				};
+
+				// delete all access
 				$stmt = $db->prepare("DELETE FROM  `macs`.`access` WHERE  `user_id` =:id;");
 				$stmt->bindParam(":id",$_POST["eid"],PDO::PARAM_INT);
 				$stmt->execute();
@@ -48,6 +57,15 @@ $resume=0;
 						$stmt = $db->prepare("UPDATE  `macs`.`user` SET `name` = :name,`badge_id` = :badge_id,`email`=:email WHERE  `user`.`id` =:id;");
 						$stmt->bindParam(":id",$_POST["e_id"],PDO::PARAM_INT);
 						$execute=1;
+
+						// mark all machines that were affected by this change as updateable
+						$stmt2 = $db->prepare("SELECT `mach_id` FROM  `macs`.`access` WHERE  `user_id` =:id;");
+						$stmt2->bindParam(":id",$_POST["e_id"],PDO::PARAM_INT);
+						$stmt2->execute();
+						foreach($stmt2 as $row){
+							set_mach_outdated($row["mach_id"],$db);
+						};
+
 					} else {
 						// run some checks before we accept the data
 						// 2. check if there is already the same badge
@@ -78,6 +96,15 @@ $resume=0;
 					if($_POST["e_id"]!=0){
 						add_log("-",$_POST["e_id"],"User updated");
 						show_info("User updated");
+
+						// mark all machines that were affected by this deletation as updateable
+						$stmt = $db->prepare("SELECT `mach_id` FROM  `macs`.`access` WHERE  `user_id` =:id;");
+						$stmt->bindParam(":id",$_POST["e_id"],PDO::PARAM_INT);
+						$stmt->execute();
+						foreach($stmt as $row){
+							set_mach_outdated($row["mach_id"],$db);
+						};
+
 					} else {
 						$stmt = $db->prepare("SELECT ID FROM `macs`.`user` ORDER BY ID desc LIMIT 0,1");
 						$stmt->execute();
@@ -86,6 +113,9 @@ $resume=0;
 						};
 						show_info("user created");
 					}; // msg
+
+
+
 				}; // excute ok?
 			} // edit is handled locally below
 		} // delete or edit
@@ -140,6 +170,10 @@ $resume=0;
 						$stmt = $db->prepare("UPDATE  `macs`.`mach` SET `name` = :name,`mach_nr` = :mach_nr,`desc`=:desc WHERE  `mach`.`id` =:id;");
 						$stmt->bindParam(":id",$_POST["e_id"],PDO::PARAM_INT);
 						$execute=1;
+
+						// insert entry that this machine might need an update
+						set_mach_outdated($_POST["e_id"],$db);
+
 					} else {
 						$stmt = $db->prepare("SELECT COUNT(*) FROM `macs`.`mach` WHERE mach_nr=:machine_id");
 						$stmt->bindParam(":machine_id",$_POST["e_mach_nr"],PDO::PARAM_INT);
@@ -191,6 +225,15 @@ $resume=0;
 					$stmt->execute();
 				}
 			};
+
+			// mark all machines as updateable
+			$stmt = $db->prepare("SELECT `id` FROM  `macs`.`mach`");
+			$stmt->execute();
+			foreach($stmt as $row){
+				set_mach_outdated($row["id"],$db);
+			};
+
+
 			add_log("-","-","access right updated");
 			show_info("access right updated");
 		};
