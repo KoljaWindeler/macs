@@ -253,7 +253,7 @@ $o.='	<tr><td colspan="5">&nbsp;</td></tr>
 	</table>';
 ///////////////// EDIT USER ///////////////
 
-$o.='</td></tr><tr class="spacer"><td>&nbsp;</td></tr><tr class="header click '.hide_table("mach").'"><td>+ Add/Edit Locks</td></tr><tr><td>';
+$o.='</td></tr><tr class="spacer"><td>&nbsp;</td></tr><tr class="header click '.hide_table("mach").'"><td>+ Add/Edit Stations</td></tr><tr><td>';
 
 /////////////// GET MACHINE ////////////////
 $o.='<table class="fillme"><tr class="subheader">
@@ -317,7 +317,7 @@ $o.='<tr><td colspan="5">&nbsp;</td></tr><tr class="subheader">
 /////////////// EDIT MACHINE ////////////////
 
 /////////////// GET CONNECTION //////////////
-$o.='</td></tr><tr class="spacer"><td>&nbsp;</td></tr><tr class="header click"><td>+ Connect User to lock</td></tr> <tr><td>
+$o.='</td></tr><tr class="spacer"><td>&nbsp;</td></tr><tr class="header click"><td>+ Connect User to Station</td></tr> <tr><td>
   <table class="fillme"><tr class="subheader" ><th class="">&nbsp;</td>';
 
 $o_conn="";
@@ -424,12 +424,20 @@ foreach ($stmt as $row) {
 
 	if($row["machine_id"]>0){
 		$m=get_mach($row["machine_id"]);
-		$m_out=$m["name"];
+		if($m!=-1){
+			$m_out=$m["name"];
+		} else {
+			$m_out="db hickup";
+		};
 	}
 
 	if($row["user_id"]>0){
 		$u=get_user($row["user_id"]);
-		$u_out=$u["name"];
+		if($u!=-1){
+			$u_out=$u["name"];
+		} else {
+			$u_out="db hickup";
+		};
 	}
 	
 
