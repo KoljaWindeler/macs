@@ -1,5 +1,10 @@
 <?php
 
+function set_mach_outdated($mach_id,$db){
+	$stmt2 = $db->prepare("INSERT INTO  `macs`.`update_available` (`mach_id`) VALUE (:mach_id)");
+        $stmt2->bindParam(":mach_id",$mach_id,PDO::PARAM_INT);
+        $stmt2->execute();
+};
 
 function hide_table($name){
 	global $_GET;
