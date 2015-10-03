@@ -118,6 +118,10 @@ $resume=0;
 					$execute=0;
 					$resume=1;
 					show_info("You have to provide a Mach id");
+				} elseif($_POST["e_mach_id"]>63){
+					$execute=0;
+					$resume=1;
+					show_info("Valid range for Mach id 0-63");
 				} elseif($_POST["e_desc"]=="-" or empty($_POST["e_desc"])){
 					$execute=0;
 					$resume=1;
