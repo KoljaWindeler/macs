@@ -3,11 +3,15 @@ ini_set('display_errors',1);
 ini_set('display_startup_errors',1);
 error_reporting(-1);
 
+
+session_start();
+require_once("helper.php");
+require_once("sec.php");
 require_once("con.php");
-require_once("html.php");
 require_once("data.php");
 require_once("history.php");
-require_once("helper.php");
+require_once("html.php");
+
 
 $DEBUG=0;
 $resume=0;
@@ -242,9 +246,7 @@ $resume=0;
 ////////////////// DB CHANGES ///////////////
 
 
-$o=$header.'<body><div class="logo_l1">welcome to </div><div class="logo_l2">M.A.C.S.</div><br>
-<div id="clients"></div>
-<table class="maintable"><tr class="header click '.hide_table("user").'"><td>+ Add/Edit User</td></tr>
+$o=$header.'<table class="maintable"><tr class="header click '.hide_table("user").'"><td>+ Add/Edit User</td></tr>
 <tr><td><table class="fillme" id="usertable">
 <tr class="subheader"><td>Name</td><td>eMail</td><td>Badge-ID</td><td>last used</td><td>edit</td></tr>';
 
@@ -475,7 +477,7 @@ if(isset($_GET["logall"])){
 	$sql_limit="";
 }
 $o.='</td></tr><tr class="spacer"><td>&nbsp;</td></tr><tr class="header click"><td>+ Log '.$title.'</td></tr><tr><td>';
-$o.='<tr><td><table class="fillme" id="logtable"><tr class="subheader"><td>Time</td><td>Machine</td><td>User</td><td>Event</td></tr>';
+$o.='<tr><td><table class="fillme" id="logtable"><tr class="subheader"><td>Time</td><td>Machine</td><td>User</td><td>Event</td><td>Admin</td></tr>';
 
 $o_log="";
 $stmt = $db->prepare('SELECT * FROM log ORDER BY timestamp desc '.$sql_limit);
@@ -483,6 +485,7 @@ $stmt->execute();
 foreach ($stmt as $row) {
 	$u_out="-";
 	$m_out="-";
+	$l_out="-";
 
 	if($row["machine_id"]>0){
 		$m=get_mach($row["machine_id"]);
@@ -501,6 +504,15 @@ foreach ($stmt as $row) {
 			$u_out="db hickup";
 		};
 	}
+
+	if($row["login_id"]>0){
+		$l=get_user($row["login_id"]);
+		if($l!=-1){
+			$l_out=$l["name"];
+		} else {
+			$l_out="db hickup";
+		};
+	};
 	
 
  	 $o_log.='<tr>
@@ -508,6 +520,7 @@ foreach ($stmt as $row) {
 		<td>'.$m_out.'</td>
 		<td>'.$u_out.'</td>
 		<td>'.$row["event"].'</td>
+		<td>'.$l_out.'</td>
 		</tr>';
 
 };
