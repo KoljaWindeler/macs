@@ -94,17 +94,17 @@ $resume=0;
 		elseif($_POST["edit"]=="mach"){
 			if(isset($_POST["submit"]) & $_POST["submit"]=="delete"){ // delete
 				// we are going to rename the machine id to the next freee nr above 900, get free nr
-				$request = $db->prepare('SELECT MAX(mach_id) FROM mach');
+				$request = $db->prepare('SELECT MAX(mach_nr) FROM mach');
 				$request->execute();
 				foreach ($request as $row) {
-					$new_mach_id=$row["MAX(mach_id)"]+1;
+					$new_mach_nr=$row["MAX(mach_nr)"]+1;
 				};
-				if($new_mach_id<900){
-					$new_mach_id=900;
+				if($new_mach_nr<900){
+					$new_mach_nr=900;
 				};
 				
 				// now, relabel machine
-				$stmt = $db->prepare("UPDATE  `macs`.`mach` SET `active` = 0, `mach_id`=".$new_mach_id." WHERE  `mach`.`id` =:id;");
+				$stmt = $db->prepare("UPDATE  `macs`.`mach` SET `active` = 0, `mach_nr`=".$new_mach_nr." WHERE  `mach`.`id` =:id;");
 				$stmt->bindParam(":id",$_POST["eid"],PDO::PARAM_INT);
 				$stmt->execute();
 
@@ -119,14 +119,14 @@ $resume=0;
 					$execute=0;
 					$resume=1;
 					show_info("You have to provide a name");
-				} elseif($_POST["e_mach_id"]=="-" or empty($_POST["e_mach_id"])){
+				} elseif($_POST["e_mach_nr"]=="-" or empty($_POST["e_mach_nr"])){
 					$execute=0;
 					$resume=1;
 					show_info("You have to provide a Mach id");
-				} elseif($_POST["e_mach_id"]>63){
+				} elseif($_POST["e_mach_nr"]>63){
 					$execute=0;
 					$resume=1;
-					show_info("Valid range for Mach id 0-63");
+					show_info("Valid range for Mach Nr 0-63");
 				} elseif($_POST["e_desc"]=="-" or empty($_POST["e_desc"])){
 					$execute=0;
 					$resume=1;
@@ -137,12 +137,12 @@ $resume=0;
 					show_info("Please limit name to 12 chars");
 				} else {
 					if($_POST["e_id"]!=0){ // update
-						$stmt = $db->prepare("UPDATE  `macs`.`mach` SET `name` = :name,`mach_id` = :mach_id,`desc`=:desc WHERE  `mach`.`id` =:id;");
+						$stmt = $db->prepare("UPDATE  `macs`.`mach` SET `name` = :name,`mach_nr` = :mach_nr,`desc`=:desc WHERE  `mach`.`id` =:id;");
 						$stmt->bindParam(":id",$_POST["e_id"],PDO::PARAM_INT);
 						$execute=1;
 					} else {
-						$stmt = $db->prepare("SELECT COUNT(*) FROM `macs`.`mach` WHERE mach_id=:machine_id");
-						$stmt->bindParam(":machine_id",$_POST["e_mach_id"],PDO::PARAM_INT);
+						$stmt = $db->prepare("SELECT COUNT(*) FROM `macs`.`mach` WHERE mach_nr=:machine_id");
+						$stmt->bindParam(":machine_id",$_POST["e_mach_nr"],PDO::PARAM_INT);
 						$stmt->execute();
 						foreach($stmt as $row){
 							if($row["COUNT(*)"]>0){
@@ -151,7 +151,7 @@ $resume=0;
 								add_log("-","-","Mach ID already in db, entry rejected");
 								show_info("Entry rejected, duplicate id");
 							} else {
-								$stmt = $db->prepare("INSERT INTO  `macs`.`mach` (`name`,`mach_id`,`desc`,`active`) VALUE (:name,:mach_id,:desc,1)");
+								$stmt = $db->prepare("INSERT INTO  `macs`.`mach` (`name`,`mach_nr`,`desc`,`active`) VALUE (:name,:mach_nr,:desc,1)");
 								$execute=1;
 							};
 						} // for each
@@ -160,7 +160,7 @@ $resume=0;
 
 				if($execute==1){
 					$stmt->bindParam(":name",$_POST["e_name"],PDO::PARAM_STR);
-					$stmt->bindParam(":mach_id",$_POST["e_mach_id"],PDO::PARAM_STR);
+					$stmt->bindParam(":mach_nr",$_POST["e_mach_nr"],PDO::PARAM_STR);
 					$stmt->bindParam(":desc",$_POST["e_desc"],PDO::PARAM_STR);
 					$stmt->execute();
 
@@ -275,7 +275,7 @@ $stmt->execute();
 foreach ($stmt as $row) {
   $o_mach.='<tr>
 		<td>'.$row["name"].'</td>
-		<td>'.$row["mach_id"].'</td>
+		<td>'.$row["mach_nr"].'</td>
 		<td>'.$row["desc"].'</td>
 		<td>'.date("Y/m/d H:i",$row["last_seen"]).'</td>
 		<td>
@@ -294,7 +294,7 @@ $o.=$o_mach;
 /////////////// GET MACHINE ////////////////
 /////////////// EDIT MACHINE ////////////////
 $e_name="-";
-$e_mach_id="-";
+$e_mach_nr="-";
 $e_desc="-";
 $e_id=0;
 if(isset($_POST["edit"])){
@@ -303,13 +303,13 @@ if(isset($_POST["edit"])){
 		$stmt->execute(array('id' => $_POST["eid"]));
 		foreach ($stmt as $row){
 			$e_name=$row["name"];
-			$e_mach_id=$row["mach_id"];
+			$e_mach_nr=$row["mach_nr"];
 			$e_id=$row["id"];
 			$e_desc=$row["desc"];
 		};
 	} elseif($_POST["edit"]=="mach" AND $_POST["submit"]=="Add/Update" AND $resume==1){
 		$e_name=$_POST["e_name"];
-		$e_mach_id=$_POST["e_mach_id"];
+		$e_mach_nr=$_POST["e_mach_nr"];
 		$e_desc=$_POST["e_desc"];
 		$e_id=$_POST["e_id"];
 	};
@@ -318,7 +318,7 @@ $o.='<tr><td colspan="5">&nbsp;</td></tr><tr class="subheader">
   <td>Name</td><td>Machine-ID</td><td>Description</td><td colspan="2">&nbsp;</td></tr><tr>
 	<form method="POST" action="index.php?show=mach">
 	<td><input type="text" name="e_name" value="'.$e_name.'"></td>
-	<td><input type="text" name="e_mach_id" value="'.$e_mach_id.'"></td>
+	<td><input type="text" name="e_mach_nr" value="'.$e_mach_nr.'"></td>
 	<td><input type="text" name="e_desc" value="'.$e_desc.'"></td>
 	<td colspan="2">-</td></tr>
 	<input type="hidden" name="edit" value="mach"><input type="hidden" name="e_id" value="'.$e_id.'">
