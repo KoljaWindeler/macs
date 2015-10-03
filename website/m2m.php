@@ -11,6 +11,11 @@ if(isset($_GET["mach"])){
 	};
 
 	echo substr($csv,0,-1);
+
+	$stmt = $db->prepare("INSERT INTO `macs`.`log` (`id`, `timestamp`, `user_id`, `machine_id`, `event`) VALUES ('', '".time()."', '0', (SELECT `id` FROM `mach` WHERE mach_id=:id), 'Station updated')");
+	$stmt->bindParam(":id",$_GET["mach"],PDO::PARAM_INT);
+	$stmt->execute();
+
 };
 
 ?>
