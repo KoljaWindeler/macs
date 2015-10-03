@@ -26,7 +26,7 @@ function load_data(){
 
 function get_user($i){
 	global $db_user;
-	if($db_user[$i]!=null){
+	if(isset($db_user[$i])){
 		return $db_user[$i];
 	};
 	return -1;
@@ -42,7 +42,7 @@ function get_user_name($i){
 
 function get_mach($i){
 	global $db_mach;
-	if($db_mach[$i]!=null){
+	if(isset($db_mach[$i])){
 		return $db_mach[$i];
 	};
 	return -1;
