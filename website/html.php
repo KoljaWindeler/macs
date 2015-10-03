@@ -15,7 +15,12 @@ $header='<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="tex
 			});
 		$(\'.hideatstart\').nextUntil(\'tr.spacer\').hide();
 		$(\'#info\').delay(2000).fadeOut(1500);
-	});
+		$(\'input:text\').click( function(){
+			if($(this).val()==\'-\'){
+			        $(this).val(\'\');
+			};
+		    });
+		});
 </script></head>';
 
 $footer='</body></html>';
