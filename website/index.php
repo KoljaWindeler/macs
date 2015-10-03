@@ -96,27 +96,46 @@ $resume=0;
 			}
 			elseif(isset($_POST["submit"]) & $_POST["submit"]=="Add/Update"){
 				$execute=0;
-				if($_POST["e_id"]!=0){ // update
-					$stmt = $db->prepare("UPDATE  `macs`.`mach` SET `name` = :name,`mach_id` = :mach_id,`desc`=:desc WHERE  `mach`.`id` =:id;");
-					$stmt->bindParam(":id",$_POST["e_id"],PDO::PARAM_INT);
-					$execute=1;
+				// check if the data make sense
+				if($_POST["e_name"]=="-" or empty($_POST["e_name"])){
+					$execute=0;
+					$resume=1;
+					show_info("You have to provide a name");
+				} elseif($_POST["e_mach_id"]=="-" or empty($_POST["e_mach_id"])){
+					$execute=0;
+					$resume=1;
+					show_info("You have to provide a Mach id");
+				} elseif($_POST["e_desc"]=="-" or empty($_POST["e_desc"])){
+					$execute=0;
+					$resume=1;
+					show_info("You have to provide a description");
+				} elseif(strlen($_POST["e_name"])>12){
+					$execute=0;
+					$resume=1;
+					show_info("Please limit name to 12 chars");
 				} else {
-					$stmt = $db->prepare("SELECT COUNT(*) FROM `macs`.`mach` WHERE mach_id=:machine_id");
-					$stmt->bindParam(":machine_id",$_POST["e_mach_id"],PDO::PARAM_INT);
-					$stmt->execute();
-					foreach($stmt as $row){
-						if($row["COUNT(*)"]>0){
-							$excute=0;
-							$resume=1;
-							add_log("-","-","Mach ID already in db, entry rejected");
-							show_info("Entry rejected, duplicate id");
-						} else {
-							$stmt = $db->prepare("INSERT INTO  `macs`.`mach` (`name`,`mach_id`,`desc`,`active`) VALUE (:name,:mach_id,:desc,1)");
-							$execute=1;
-						};
-					} // for each
+					if($_POST["e_id"]!=0){ // update
+						$stmt = $db->prepare("UPDATE  `macs`.`mach` SET `name` = :name,`mach_id` = :mach_id,`desc`=:desc WHERE  `mach`.`id` =:id;");
+						$stmt->bindParam(":id",$_POST["e_id"],PDO::PARAM_INT);
+						$execute=1;
+					} else {
+						$stmt = $db->prepare("SELECT COUNT(*) FROM `macs`.`mach` WHERE mach_id=:machine_id");
+						$stmt->bindParam(":machine_id",$_POST["e_mach_id"],PDO::PARAM_INT);
+						$stmt->execute();
+						foreach($stmt as $row){
+							if($row["COUNT(*)"]>0){
+								$excute=0;
+								$resume=1;
+								add_log("-","-","Mach ID already in db, entry rejected");
+								show_info("Entry rejected, duplicate id");
+							} else {
+								$stmt = $db->prepare("INSERT INTO  `macs`.`mach` (`name`,`mach_id`,`desc`,`active`) VALUE (:name,:mach_id,:desc,1)");
+								$execute=1;
+							};
+						} // for each
+					} // insert
+				} // if check ok
 
-				}
 				if($execute==1){
 					$stmt->bindParam(":name",$_POST["e_name"],PDO::PARAM_STR);
 					$stmt->bindParam(":mach_id",$_POST["e_mach_id"],PDO::PARAM_STR);
@@ -269,6 +288,7 @@ if(isset($_POST["edit"])){
 		$e_name=$_POST["e_name"];
 		$e_mach_id=$_POST["e_mach_id"];
 		$e_desc=$_POST["e_desc"];
+		$e_id=$_POST["e_id"];
 	};
 };
 $o.='<tr><td colspan="5">&nbsp;</td></tr><tr class="subheader">
