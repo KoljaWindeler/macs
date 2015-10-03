@@ -12,6 +12,11 @@ if(isset($_GET["mach_nr"])){
 	echo substr($csv,0,-1);
 
 
+	// update last seen
+	$stmt = $db->prepare("UPDATE `mach` SET `last_seen`=".time()." WHERE mach_nr=:id");
+	$stmt->bindParam(":id",$_GET["mach_nr"],PDO::PARAM_INT);
+	$stmt->execute();
+
 	// check if we should create a log entry for this
 	$stmt = $db->prepare("SELECT COUNT(*) FROM `update_available` WHERE mach_id in (select id from mach where mach_nr=:id)");
 	$stmt->bindParam(":id",$_GET["mach_nr"],PDO::PARAM_INT);
