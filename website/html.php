@@ -19,7 +19,14 @@ $header='<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="tex
 			if($(this).val()==\'-\'){
 			        $(this).val(\'\');
 			};
-		    });
+		});
+		$(".conf").click(function(event) {
+		        if( !confirm(\'Are you sure to delete this entry?\')){
+		            event.preventDefault();
+			};
+		});
+
+
 		});
 </script></head>';
 

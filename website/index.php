@@ -254,15 +254,19 @@ $o_user="";
 $stmt = $db->prepare('SELECT * FROM user where active=1');
 $stmt->execute();
 foreach ($stmt as $row) {
-  $o_user.='<tr>
+	$last_seen=date("Y/m/d H:i",$row["last_seen"]);
+	if($row["last_seen"]==0){
+		$last_seen="-";
+	};
+	$o_user.='<tr>
 		<td>'.$row["name"].'</td>
 		<td>'.$row["email"].'</td>
 		<td>'.$row["badge_id"].'</td>
-		<td>'.date("Y/m/d H:i",$row["last_seen"]).'</td>
+		<td>'.$last_seen.'</td>
 		<td>
 		<form method="POST" action="index.php?show=user">
 		<input type="submit" name="submit" value="edit">
-		<input type="submit" name="submit" value="delete">
+		<input type="submit" name="submit" value="delete" class="conf">
 		<input type="hidden" name="eid" value="'.$row["id"].'" >
 		<input type="hidden" name="edit" value="user" >
 		</form>
@@ -316,15 +320,20 @@ $o_mach="";
 $stmt = $db->prepare('SELECT * FROM mach WHERE `active`=1');
 $stmt->execute();
 foreach ($stmt as $row) {
-  $o_mach.='<tr>
+	$last_seen=date("Y/m/d H:i",$row["last_seen"]);
+	if($row["last_seen"]==0){
+		$last_seen="-";
+	};
+
+	$o_mach.='<tr>
 		<td>'.$row["name"].'</td>
 		<td>'.$row["mach_nr"].'</td>
 		<td>'.$row["desc"].'</td>
-		<td>'.date("Y/m/d H:i",$row["last_seen"]).'</td>
+		<td>'.$last_seen.'</td>
 		<td>
 		<form method="POST" action="index.php?show=mach">
 		<input type="submit" name="submit" value="edit">
-		<input type="submit" name="submit" value="delete">
+		<input type="submit" name="submit" value="delete" class="conf">
 		<input type="hidden" name="eid" value="'.$row["id"].'" >
 		<input type="hidden" name="edit" value="mach" >
 		</form>
@@ -462,7 +471,7 @@ $o.=$o_conn;
 $title="(Newestest 20 entries - <a href='index.php?logall'>show all</a>)";
 $sql_limit="LIMIT 0,20";
 if(isset($_GET["logall"])){
-	$title="(all)";
+	$title="(all) - <a href='index.php'>show only 20 entries</a>";
 	$sql_limit="";
 }
 $o.='</td></tr><tr class="spacer"><td>&nbsp;</td></tr><tr class="header click"><td>+ Log '.$title.'</td></tr><tr><td>';
