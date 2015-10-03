@@ -42,6 +42,8 @@ table, th, td {
 	margin: 0 auto;  /* setzt den block mittig */
 }
 
+.hover { background-color: rgba(255,255,255,0.15)!important }
+
 .fillme{
 	width:98%;
 	background:rgba(255,255,255,0.45)!important;

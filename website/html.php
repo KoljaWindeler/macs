@@ -33,6 +33,17 @@ $header='<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="tex
 			var passhash = CryptoJS.MD5(pw);
 			$("#macs_pw_md5").val(passhash.toString(CryptoJS.enc.Hex));
 		});
+
+		$(".fillme").delegate(\'td\',\'mouseover mouseleave\', function(e) {
+		    if (e.type == \'mouseover\') {
+		      $(this).parent().addClass("hover");
+		      $("colgroup").eq($(this).index()).addClass("hover");
+		    }
+		    else {
+		      $(this).parent().removeClass("hover");
+		      $("colgroup").eq($(this).index()).removeClass("hover");
+		    }
+		});
 	});
 </script></head><body>';
 
