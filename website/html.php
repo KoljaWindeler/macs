@@ -15,7 +15,7 @@ $header='<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="tex
 			$(this).nextUntil(\'tr.spacer\').fadeToggle("slow");
 			});
 		$(\'.hideatstart\').nextUntil(\'tr.spacer\').hide();
-		$(\'#info\').delay(2000).fadeOut(1500);
+		$(\'#info\').delay(5000).fadeOut(1500);
 		$(\'input\').click( function(){
 			if($(this).val()==\'-\'){
 			        $(this).val(\'\');
