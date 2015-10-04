@@ -7,7 +7,7 @@
 /**
 * Declaring the variables.
 */
-
+#define TAGSTRINGSIZE 11
 #define MAX_JUMPER_PIN 5
 #define MAX_KEYS 20
 #define RELAY_CLOSED 1
@@ -19,8 +19,9 @@
 #define MIN_UPDATE_TIME 10
 
 uint8_t keys_available=0;
-uint32_t keys[MAX_KEYS];
-uint32_t current_tag=0;
+uint8_t keys[MAX_KEYS][TAGSTRINGSIZE];
+uint8_t currentTag[TAGSTRINGSIZE];
+uint8_t currentTagIndex=0;
 uint8_t current_relay_state=RELAY_OPEN;
 uint32_t nextTime = 0;    // Next time to contact the server
 uint8_t id=-1; //255
@@ -44,11 +45,13 @@ void setup() {
 // woop woop main loop
 void loop() {
     // check if we found a tag
-    if(tag_found(&current_tag)){
+    if(tag_found(currentTag)){
         
         #ifdef DEBUG_JKW
         Serial.print("Tag ");
-        Serial.print(current_tag);
+        for(uint8_t ii=0; ii<TAGSTRINGSIZE; ii++){
+            Serial.print(currentTag[ii]);
+        }
         Serial.println(" found. Checking database for matching key");
         Serial.println("==============");
         #endif
@@ -61,12 +64,24 @@ void loop() {
         Serial.print(" / ");
         Serial.print(keys_available);
         Serial.print(" Compare current read tag ");
-        Serial.print(current_tag);
+        for(uint8_t ii=0; ii<TAGSTRINGSIZE; ii++){
+            Serial.print(currentTag[ii]);
+        }
         Serial.print(" to stored key ");
-        Serial.println(keys[i]);
+        for(uint8_t ii=0; ii<TAGSTRINGSIZE; ii++){
+            Serial.print(keys[i][ii]);
+        }
+        Serial.println("");
         #endif
-        
-            if(keys[i]==current_tag){
+            bool key_good=true;
+            for(uint8_t ii=0; ii<TAGSTRINGSIZE; ii++){
+                if(keys[i][ii]!=currentTag[ii]){
+                    key_good=false;
+                    break;
+                }
+            }
+            
+            if(key_good){
 
         #ifdef DEBUG_JKW
         Serial.println("Key valid, closing relay");
@@ -130,18 +145,31 @@ void relay(int8_t input){
 
 
 // returns true if tag found
-bool tag_found(uint32_t *tag){
-    //serial.availealbe ... 
-    if (nextTime < millis()) {
-        nextTime = millis() + 1000;
-        *tag=random(10);
+bool tag_found(uint8_t *tag){
+    uint8_t temp;
+    
+    while(Serial1.available()){
+        temp=Serial1.read();
+        if(temp==2){
+            currentTagIndex=0;
+        } else if(temp==3){
+            return validate_tag(currentTag);
+        } else if((temp>='0' && temp<='9') || (temp>='a' && temp<='z') || (temp>='A' && temp<='Z')) {
+            currentTag[currentTagIndex]=temp;
+            currentTagIndex=(currentTagIndex+1)%TAGSTRINGSIZE;
+        };
+    }
+    return false;
+}
 
-        #ifdef DEBUG_JKW
-        Serial.println("");
-        Serial.print("Generated fake-random key:");
-        Serial.println(*tag);
-        #endif
-        
+
+// just chech if the data are corrumpeted or equal the checksum
+bool validate_tag(uint8_t *tag){
+    uint8_t expected=0;
+    for(uint8_t i=0;i<TAGSTRINGSIZE-1;i++){
+        expected^=tag[i];
+    }
+    if(expected==tag[TAGSTRINGSIZE-1]){
         return true;
     }
     return false;
@@ -185,14 +213,13 @@ bool update_ids(){
 
     uint8_t current_key=0;
     for(uint8_t i=0;i<sizeof(keys)/sizeof(keys[0]);i++){
-        keys[i]=0;
+        keys[i][0]=0x00;
     }
     for(uint8_t i=0;i<response.body.length();i++){
         if(response.body.charAt(i)==','){
             current_key++;
         } else if(response.body.charAt(i)>='0' && response.body.charAt(i)<='9') {
-            keys[current_key]*=10;
-            keys[current_key]+=response.body.charAt(i)-'0';
+            keys[current_key][i]=response.body.charAt(i);
         }
     }
     keys_available=current_key+1;
@@ -204,7 +231,10 @@ bool update_ids(){
         Serial.print("Valid Database Key Nr ");
         Serial.print(i+1);
         Serial.print(": ");
-        Serial.println(keys[i]);
+        for(uint8_t ii=0;ii<TAGSTRINGSIZE;ii++){
+            Serial.print(keys[i][ii]);
+        };
+        Serial.println("");
     };
     
     return true;

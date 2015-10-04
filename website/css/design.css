@@ -58,7 +58,7 @@ table, th, td {
 	font-size:17px;
 	line-height:40px;
 }
-a:visited,a:active{
+a:visited,a:active,a{
 	color:#eeeeee;
 }
 
