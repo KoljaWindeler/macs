@@ -16,7 +16,7 @@ $header='<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="tex
 			});
 		$(\'.hideatstart\').nextUntil(\'tr.spacer\').hide();
 		$(\'#info\').delay(2000).fadeOut(1500);
-		$(\'input:text\').click( function(){
+		$(\'input\').click( function(){
 			if($(this).val()==\'-\'){
 			        $(this).val(\'\');
 			};
@@ -32,9 +32,11 @@ $header='<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="tex
 			$("#macs_pw").val("");
 			var passhash = CryptoJS.MD5(pw);
 			$("#macs_pw_md5").val(passhash.toString(CryptoJS.enc.Hex));
+			//event.preventDefault();
+			
 		});
 
-		$(".fillme").delegate(\'td\',\'mouseover mouseleave\', function(e) {
+		$(".hl").delegate(\'td\',\'mouseover mouseleave\', function(e) {
 		    if (e.type == \'mouseover\') {
 		      $(this).parent().addClass("hover");
 		      $("colgroup").eq($(this).index()).addClass("hover");
