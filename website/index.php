@@ -498,13 +498,13 @@ $o.=$o_conn;
 
 
 //////////////// LOG /////////////////
-$title="(Newestest 20 entries - <a href='index.php?logall'>show all</a>)";
+$title="(20 most recent entries - <a href='index.php?logall#log'>show all</a>)";
 $sql_limit="LIMIT 0,20";
 if(isset($_GET["logall"])){
-	$title="(all) - <a href='index.php'>show only 20 entries</a>";
+	$title="(all) - <a href='index.php#log'>show only 20 entries</a>";
 	$sql_limit="";
 }
-$o.='</td></tr><tr class="spacer"><td>&nbsp;</td></tr><tr class="header click"><td>+ Log '.$title.'</td></tr><tr><td>';
+$o.='</td></tr><tr class="spacer"><td>&nbsp;</td></tr><tr class="header click"><td>+ Log '.$title.'<a name="log"></a></td></tr><tr><td>';
 $o.='<tr><td><table class="fillme" id="logtable"><tr class="subheader"><td>Time</td><td>Machine</td><td>User</td><td>Event</td><td>Admin</td></tr>';
 
 $o_log="";
