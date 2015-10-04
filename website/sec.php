@@ -9,7 +9,7 @@ $login=0;
 
 if(!isset($_SESSION['ID']) or $_SESSION['ID']==0){
 	if(isset($_POST["macs_login"]) and isset($_POST["macs_pw"])){
-		$stmt = $db->prepare("SELECT `hash`,`id` FROM `macs`.`user` where login=:login");
+		$stmt = $db->prepare("SELECT `hash`,`id` FROM `macs`.`user` where login=:login and active=1");
 	        $stmt->bindParam(":login",$_POST["macs_login"],PDO::PARAM_STR);
         	$stmt->execute();
 
