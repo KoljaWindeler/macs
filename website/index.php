@@ -16,7 +16,7 @@ require_once("html.php");
 $DEBUG=0;
 $resume=0;
 ////////////////// DB CHANGES ///////////////
-	#var_dump($_POST);
+	//var_dump($_POST);
 	////////////////// USER ///////////////
 	if(isset($_POST["edit"])){
 		if($_POST["edit"]=="user"){ // edit or delte button
@@ -41,7 +41,7 @@ $resume=0;
 				add_log("-",$_POST["eid"],"User deleted");
 				show_info("User deleted");
 			}
-			elseif(isset($_POST["submit"]) & $_POST["submit"]=="Add/Update"){
+			elseif(isset($_POST["submit"]) & ($_POST["submit"]=="Add" || $_POST["submit"]=="Update")){
 				$execute=0;
 				// 1. check if the data make sense
 				if($_POST["e_name"]=="-" or empty($_POST["e_name"])){
@@ -56,9 +56,13 @@ $resume=0;
 					$execute=0;
 					$resume=1;
 					show_info("You have to provide a email");
+				} elseif($_POST["e_login"]!="" and $_POST["macs_pw_md5"]=="d41d8cd98f00b204e9800998ecf8427e"){ // d41d8cd98f00b204e9800998ecf8427e = md5("")
+					$execute=0;
+					$resume=1;
+					show_info("No login without pw");
 				} else {
 					if($_POST["e_id"]!=0){ // update
-						$stmt = $db->prepare("UPDATE  `macs`.`user` SET `name` = :name,`badge_id` = :badge_id,`email`=:email WHERE  `user`.`id` =:id;");
+						$stmt = $db->prepare("UPDATE  `macs`.`user` SET `name` = :name,`badge_id` = :badge_id,`email`=:email,`login`=:login,`hash`=:hash WHERE  `user`.`id` =:id;");
 						$stmt->bindParam(":id",$_POST["e_id"],PDO::PARAM_INT);
 						$execute=1;
 
@@ -83,7 +87,7 @@ $resume=0;
 								add_log("-","-","Badge ID already in db, entry rejected");
 								show_info("Entry rejected, duplicate badge");
 							} else {
-								$stmt = $db->prepare("INSERT INTO  `macs`.`user` (`name`,`badge_id`,`email`,`active`) VALUE (:name,:badge_id,:email,1)");
+								$stmt = $db->prepare("INSERT INTO  `macs`.`user` (`name`,`badge_id`,`email`,`active`,`login`,`hash`) VALUE (:name,:badge_id,:email,1,:login,:hash)");
 								$execute=1;
 							};
 						} // for each
@@ -94,6 +98,8 @@ $resume=0;
 					$stmt->bindParam(":name",$_POST["e_name"],PDO::PARAM_STR);
 					$stmt->bindParam(":badge_id",$_POST["e_badge"],PDO::PARAM_STR);
 					$stmt->bindParam(":email",$_POST["e_email"],PDO::PARAM_STR);
+					$stmt->bindParam(":login",$_POST["e_login"],PDO::PARAM_STR);
+					$stmt->bindParam(":hash",$_POST["macs_pw_md5"],PDO::PARAM_STR);
 					$stmt->execute();
 	
 					load_data(); // reload as user has changed
@@ -146,7 +152,7 @@ $resume=0;
 				add_log($_POST["eid"],"-","Machine deleted");
 				show_info("Machine deleted");
 			}
-			elseif(isset($_POST["submit"]) & $_POST["submit"]=="Add/Update"){
+			elseif(isset($_POST["submit"]) & ($_POST["submit"]=="Add" || $_POST["submit"]=="Update")){
 				$execute=0;
 				// check if the data make sense
 				if($_POST["e_name"]=="-" or empty($_POST["e_name"])){
@@ -248,7 +254,7 @@ $resume=0;
 
 $o=$header.'<table class="maintable"><tr class="header click '.hide_table("user").'"><td>+ Add/Edit User</td></tr>
 <tr><td><table class="fillme" id="usertable">
-<tr class="subheader"><td>Name</td><td>eMail</td><td>Badge-ID</td><td>last used</td><td>edit</td></tr>';
+<tr class="subheader"><td>Name</td><td>eMail</td><td>Badge-ID</td><td>Admin access</td><td>last used</td><td>edit</td></tr>';
 
 
 ///////////////// GET USER ///////////////
@@ -260,10 +266,16 @@ foreach ($stmt as $row) {
 	if($row["last_seen"]==0){
 		$last_seen="-";
 	};
-	$o_user.='<tr>
+	$admin_access='no';
+	if(!empty($row["login"]) and !empty($row["hash"])){
+		$admin_access='yes';
+	};
+
+	$o_user.='<tr class="hl">
 		<td>'.$row["name"].'</td>
 		<td>'.$row["email"].'</td>
 		<td>'.$row["badge_id"].'</td>
+		<td>'.$admin_access.'</td>
 		<td>'.$last_seen.'</td>
 		<td>
 		<form method="POST" action="index.php?show=user">
@@ -281,7 +293,11 @@ $o.=$o_user;
 $e_name="-";
 $e_badge="-";
 $e_email="-";
+$e_login="";
+$e_hash="";
 $e_id=0;
+$btn="Add";
+
 if(isset($_POST["edit"])){
 	if($_POST["edit"]=="user" AND !empty($_POST["eid"]) AND $_POST["submit"]=="edit"){
 		$stmt = $db->prepare('SELECT * FROM user where id=:id');
@@ -291,25 +307,32 @@ if(isset($_POST["edit"])){
 			$e_badge=$row["badge_id"];
 			$e_id=$row["id"];
 			$e_email=$row["email"];
+			$e_login=$row["login"];
 		};
-	} elseif($_POST["edit"]=="user" AND $_POST["submit"]=="Add/Update" AND $resume==1){
+		$btn="Update";
+	} elseif($_POST["edit"]=="user" AND ($_POST["submit"]=="Add" || $_POST["submit"]=="Update") AND $resume==1){
 		$e_name=$_POST["e_name"];
 		$e_email=$_POST["e_email"];
 		$e_badge=$_POST["e_badge"];
+		$e_login=$_POST["e_login"];
 		$e_id=$_POST["e_id"];
+		if($_POST["submit"]=="Update"){
+			$btn="Update";
+		};
 	};
 };
 
-$o.='	<tr><td colspan="5">&nbsp;</td></tr>
-	<tr class="subheader"><td>Name</td><td>eMail</td><td>Badge-ID</td><td colspan="2">&nbsp;</td></tr>
-	<tr><form action="index.php?show=user" method="POST">
+
+$o.='	<tr><td colspan="7">&nbsp;</td></tr>
+	<tr class="subheader"><td>Name</td><td>eMail</td><td colspan="3">Provid login/pw for admin access</td><td>Badge-ID</td></tr>
+	<form action="index.php?show=user" method="POST" id="login_form"><tr>
 		<td><input type="text" name="e_name" value="'.$e_name.'"></td>
 		<td><input type="text" name="e_email" value="'.$e_email.'"></td>
-		<td><input type="text" name="e_badge" value="'.$e_badge.'"></td>
-		<td colspan="2">-</td></tr>
-	<input type="hidden" name="edit" value="user"><input type="hidden" name="e_id" value="'.$e_id.'">
-	<tr><td colspan="5"><input type="submit" name="submit" value="Add/Update"></form></td></tr>
-	</table>';
+		<td colspan="3"><input type="text" name="e_login" value="'.$e_login.'"> <input type="password" name="macs_pw" value="" id="macs_pw"></td>
+		<td><input type="text" name="e_badge" value="'.$e_badge.'"></td></tr>
+	<input type="hidden" name="edit" value="user"><input type="hidden" name="e_id" value="'.$e_id.'"><input type="hidden" name="macs_pw_md5" id="macs_pw_md5" value="">
+	<input type="password" name="password" id="password_fake" class="hidden" autocomplete="off" style="display: none;">
+	<tr><td colspan="5"><input type="submit" name="submit" value="'.$btn.'"></td></tr></form></table>';
 ///////////////// EDIT USER ///////////////
 
 $o.='</td></tr><tr class="spacer"><td>&nbsp;</td></tr><tr class="header click '.hide_table("mach").'"><td>+ Add/Edit Stations</td></tr><tr><td>';
@@ -327,7 +350,7 @@ foreach ($stmt as $row) {
 		$last_seen="-";
 	};
 
-	$o_mach.='<tr>
+	$o_mach.='<tr class="hl">
 		<td>'.$row["name"].'</td>
 		<td>'.$row["mach_nr"].'</td>
 		<td>'.$row["desc"].'</td>
@@ -351,6 +374,7 @@ $e_name="-";
 $e_mach_nr="-";
 $e_desc="-";
 $e_id=0;
+$btn="Add";
 if(isset($_POST["edit"])){
 	if($_POST["edit"]=="mach" AND !empty($_POST["eid"]) AND $_POST["submit"]=="edit"){
 		$stmt = $db->prepare('SELECT * FROM mach where id=:id');
@@ -361,11 +385,16 @@ if(isset($_POST["edit"])){
 			$e_id=$row["id"];
 			$e_desc=$row["desc"];
 		};
-	} elseif($_POST["edit"]=="mach" AND $_POST["submit"]=="Add/Update" AND $resume==1){
+		$btn="Update";
+	} elseif($_POST["edit"]=="mach" AND ($_POST["submit"]=="Add" || $_POST["submit"]=="Update") AND $resume==1){
 		$e_name=$_POST["e_name"];
 		$e_mach_nr=$_POST["e_mach_nr"];
 		$e_desc=$_POST["e_desc"];
 		$e_id=$_POST["e_id"];
+		if($_POST["submit"]=="Update"){
+			$btn="Update";
+		};
+
 	};
 };
 $o.='<tr><td colspan="5">&nbsp;</td></tr><tr class="subheader">
@@ -376,7 +405,7 @@ $o.='<tr><td colspan="5">&nbsp;</td></tr><tr class="subheader">
 	<td><input type="text" name="e_desc" value="'.$e_desc.'"></td>
 	<td colspan="2">-</td></tr>
 	<input type="hidden" name="edit" value="mach"><input type="hidden" name="e_id" value="'.$e_id.'">
-  <tr><td colspan="5"><input type="submit" name="submit" value="Add/Update" checked></form></td></tr>
+  <tr><td colspan="5"><input type="submit" name="submit" value="'.$btn.'"></form></td></tr>
   </table>';
 /////////////// EDIT MACHINE ////////////////
 
@@ -451,7 +480,7 @@ for($x=0;$x<=$matrix_dimx;$x++){
 $i=0;
 $o_conn.='<form action="index.php" method="POST">';
 foreach ($user as $row) {
-	$o_conn.='<tr><td>'.$row["name"].'</td>';
+	$o_conn.='<tr class="hl"><td>'.$row["name"].'</td>';
 	for($x=0;$x<$dimx;$x++){
 		$checked="";
 		if($DEBUG) "searching in access[".$marray[$x]["id"]."][".$row["id"]."]<br>";
@@ -463,8 +492,8 @@ foreach ($user as $row) {
 	$i++;
 };
 
-$o_conn.='<tr><td colspan="'.(1+count($mach)).'">&nbsp;</td></tr>
-	 <tr><td colspan="'.(1+count($mach)).'"><input type="submit" name="vehicle" value="Add/Update"><input type="hidden" name="edit" value="eaccess"></form></td></tr></table>';
+$o_conn.='<tr><td colspan="'.(1+$dimx).'">&nbsp;</td></tr>
+	 <tr><td colspan="'.(1+$dimx).'"><input type="submit" name="vehicle" value="Add/Update"><input type="hidden" name="edit" value="eaccess"></form></td></tr></table>';
 
 $o.=$o_conn;
 
@@ -515,7 +544,7 @@ foreach ($stmt as $row) {
 	};
 	
 
- 	 $o_log.='<tr>
+ 	 $o_log.='<tr class="hl">
 		<td>'.date("Y/m/d H:i",$row["timestamp"]).'</td>
 		<td>'.$m_out.'</td>
 		<td>'.$u_out.'</td>
