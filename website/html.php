@@ -1,4 +1,10 @@
 <?php
+$tz="";
+if(isset($_GET['tz'])){
+	$_SESSION['tz']=$_GET['tz']*60;
+} elseif (!isset($_SESSION['tz'])){
+	$tz='var now = new Date(); window.location.replace(window.location.href+"?tz="+now.getTimezoneOffset());';
+};
 
 $header='<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="x-dns-prefetch-control" content="off">
@@ -8,9 +14,12 @@ $header='<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="tex
 <link rel="stylesheet" href="css/design.css" type="text/css" media="screen" charset="utf-8">	
 <link rel="stylesheet" href="css/jquery-ui.css"/>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js" type=\'text/javascript\'></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jstimezonedetect/1.0.4/jstz.min.js" type=\'text/javascript\'>></script>
 <script src="http://crypto-js.googlecode.com/svn/tags/3.0.2/build/rollups/md5.js" type=\'text/javascript\'></script>
 <script type=\'text/javascript\'>
 	$(function(){
+		'.$tz.'
+
 		$(\'.click\').click(function(){
 			$(this).nextUntil(\'tr.spacer\').fadeToggle("slow");
 			});
@@ -49,7 +58,7 @@ $header='<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="tex
 	});
 </script></head><body>';
 
-if($_SESSION['ID']!=0){
+if(isset($_SESSION['ID']) && $_SESSION['ID']!=0){
 	$header.='<div class="right"><a href="index.php?logout">Logout</a></div>';
 }
 

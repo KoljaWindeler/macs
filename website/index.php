@@ -12,7 +12,6 @@ require_once("data.php");
 require_once("history.php");
 require_once("html.php");
 
-
 $DEBUG=0;
 $resume=0;
 ////////////////// DB CHANGES ///////////////
@@ -262,7 +261,7 @@ $o_user="";
 $stmt = $db->prepare('SELECT * FROM user where active=1');
 $stmt->execute();
 foreach ($stmt as $row) {
-	$last_seen=date("Y/m/d H:i",$row["last_seen"]);
+	$last_seen=date("Y/m/d H:i",$row["last_seen"]-$_SESSION['tz']);
 	if($row["last_seen"]==0){
 		$last_seen="-";
 	};
@@ -345,7 +344,7 @@ $o_mach="";
 $stmt = $db->prepare('SELECT * FROM mach WHERE `active`=1');
 $stmt->execute();
 foreach ($stmt as $row) {
-	$last_seen=date("Y/m/d H:i",$row["last_seen"]);
+	$last_seen=date("Y/m/d H:i",$row["last_seen"]-$_SESSION['tz']);
 	if($row["last_seen"]==0){
 		$last_seen="-";
 	};
@@ -545,7 +544,7 @@ foreach ($stmt as $row) {
 	
 
  	 $o_log.='<tr class="hl">
-		<td>'.date("Y/m/d H:i",$row["timestamp"]).'</td>
+		<td>'.date("Y/m/d H:i",$row["timestamp"]-$_SESSION['tz']).'</td>
 		<td>'.$m_out.'</td>
 		<td>'.$u_out.'</td>
 		<td>'.$row["event"].'</td>
