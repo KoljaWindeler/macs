@@ -3,7 +3,11 @@ $tz="";
 if(isset($_GET['tz'])){
 	$_SESSION['tz']=$_GET['tz']*60;
 } elseif (!isset($_SESSION['tz'])){
-	$tz='var now = new Date(); window.location.replace(window.location.href+"?tz="+now.getTimezoneOffset());';
+	$con='?';
+	if(count($_GET)>0){
+		$con='&';
+	};
+	$tz='var now = new Date(); window.location.replace(window.location.href+"'.$con.'tz="+now.getTimezoneOffset());';
 };
 
 $header='<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
