@@ -6,7 +6,7 @@ if(isset($_GET["logout"])){
 };
 
 $login=0;
-
+//var_dump($_POST);
 if(!isset($_SESSION['ID']) or $_SESSION['ID']==0){
 	if(isset($_POST["macs_login"]) and isset($_POST["macs_pw"])){
 		$stmt = $db->prepare("SELECT `hash`,`id` FROM `macs`.`user` where login=:login and active=1");
@@ -14,12 +14,12 @@ if(!isset($_SESSION['ID']) or $_SESSION['ID']==0){
         	$stmt->execute();
 
 		foreach($stmt as $row){
-			//echo "given ".$_POST["macs_pw_md5"]." vs ".$row["hash"];
+			//echo "<br>given ".$_POST["macs_pw_md5"]." vs ".$row["hash"];
 			if($row["hash"]==$_POST["macs_pw_md5"]){
+				//echo "i guess you are in";
 				$_SESSION['ID']=$row["id"];
 				$login=1;
 				show_info("Good to see you again, ".$_POST["macs_login"]);
-				break;
 			}
 		};
 	}
