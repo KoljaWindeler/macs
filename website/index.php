@@ -162,7 +162,7 @@ $resume=0;
 					$execute=0;
 					$resume=1;
 					show_info("You have to provide a Mach id");
-				} elseif($_POST["e_mach_nr"]>63){
+				} elseif(!($_POST["e_mach_nr"]<64 && $_POST["e_mach_nr"]>0)){
 					$execute=0;
 					$resume=1;
 					show_info("Valid range for Mach Nr 0-63");
@@ -542,7 +542,6 @@ foreach ($stmt as $row) {
 		};
 	};
 	
-
  	 $o_log.='<tr class="hl">
 		<td>'.date("Y/m/d H:i",$row["timestamp"]-$_SESSION['tz']).'</td>
 		<td>'.$m_out.'</td>
