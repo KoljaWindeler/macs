@@ -17,9 +17,9 @@ $header='<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="tex
 <title>MACS - Dashboard</title>
 <link rel="stylesheet" href="css/design.css" type="text/css" media="screen" charset="utf-8">	
 <link rel="stylesheet" href="css/jquery-ui.css"/>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js" type=\'text/javascript\'></script>
-<script src="http://cdnjs.cloudflare.com/ajax/libs/jstimezonedetect/1.0.4/jstz.min.js" type=\'text/javascript\'>></script>
-<script src="http://crypto-js.googlecode.com/svn/tags/3.0.2/build/rollups/md5.js" type=\'text/javascript\'></script>
+<script src="js/jquery.min.js" type=\'text/javascript\'></script>
+<script src="js/jstz.min.js" type=\'text/javascript\'>></script>
+<script src="js/md5.js" type=\'text/javascript\'></script>
 <script type=\'text/javascript\'>
 	$(function(){
 		'.$tz.'
