@@ -1,15 +1,32 @@
 <?php
+
+ini_set('display_errors',1);
+ini_set('display_startup_errors',1);
+error_reporting(-1);
+
+
 require_once('con.php');
-if(isset($_GET["logme"]) && isset($_GET["event"]) && (isset($_GET["machine"]) || isset($_GET["user"]))){
-	if(!isset($_GET["machine"])){
+if(isset($_GET["logme"]) && isset($_GET["event"]) && (isset($_GET["mach_nr"]) || isset($_GET["badge"]))){
+	if(!isset($_GET["mach_nr"])){
 		$mach="-";
 	} else {
-		$mach=$_GET["machine"];
+		$stmt = $db->prepare("SELECT `id` FROM  `macs`.`mach` WHERE mach_nr=:mach_nr");
+		$stmt->bindParam("mach_nr",$_GET["mach_nr"],PDO::PARAM_STR);
+		$stmt->execute();
+		foreach($stmt as $row){
+			$mach=$row["id"];
+		};
 	}
-	if(!isset($_GET["user"])){
+	if(!isset($_GET["badge"])){
 		$user="-";
 	} else {
-		$user=$_GET["user"];
+		$stmt = $db->prepare("SELECT `id` FROM  `macs`.`user` WHERE badge_id=:badge and active=1");
+		$stmt->bindParam("badge",$_GET["badge"],PDO::PARAM_STR);
+		$stmt->execute();
+		foreach($stmt as $row){
+			$user=$row["id"];
+			
+		};
 	}
 	add_log($mach,$user,$_GET["event"]);
 };
