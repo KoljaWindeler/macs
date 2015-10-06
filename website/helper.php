@@ -1,6 +1,10 @@
 <?php
 
 function set_mach_outdated($mach_id,$db){
+	$stmt3 = $db->prepare("DELETE FROM  `macs`.`update_available` WHERE `mach_id`=:mach_id");
+        $stmt3->bindParam(":mach_id",$mach_id,PDO::PARAM_INT);
+        $stmt3->execute();
+
 	$stmt2 = $db->prepare("INSERT INTO  `macs`.`update_available` (`mach_id`) VALUE (:mach_id)");
         $stmt2->bindParam(":mach_id",$mach_id,PDO::PARAM_INT);
         $stmt2->execute();

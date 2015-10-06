@@ -7,6 +7,9 @@ error_reporting(-1);
 
 require_once('con.php');
 if(isset($_GET["logme"]) && isset($_GET["event"]) && (isset($_GET["mach_nr"]) || isset($_GET["badge"]))){
+	$event=$_GET["event"];
+
+
 	if(!isset($_GET["mach_nr"])){
 		$mach="-";
 	} else {
@@ -20,15 +23,19 @@ if(isset($_GET["logme"]) && isset($_GET["event"]) && (isset($_GET["mach_nr"]) ||
 	if(!isset($_GET["badge"])){
 		$user="-";
 	} else {
+		$user="";
 		$stmt = $db->prepare("SELECT `id` FROM  `macs`.`user` WHERE badge_id=:badge and active=1");
 		$stmt->bindParam("badge",$_GET["badge"],PDO::PARAM_STR);
 		$stmt->execute();
 		foreach($stmt as $row){
 			$user=$row["id"];
-			
+		};
+		if($user==""){
+			$event.=" ".$_GET["badge"];
+			$user="-";
 		};
 	}
-	add_log($mach,$user,$_GET["event"]);
+	add_log($mach,$user,$event);
 };
 
 
