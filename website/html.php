@@ -10,7 +10,7 @@ if(isset($_GET['tz'])){
 	$tz='var now = new Date(); window.location.replace(window.location.href+"'.$con.'tz="+now.getTimezoneOffset());';
 };
 
-if(!isset($_SESSION["bg"])){
+if(!isset($_SESSION["bg"]) || $_SESSION["bg"]==""){
 	$_SESSION["bg"]=rand(1,7);
 };
 
