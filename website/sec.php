@@ -2,6 +2,7 @@
 include_once("con.php");
 if(isset($_GET["logout"])){
 	$_SESSION['ID']=0;
+	$_SESSION['bg']="";
 	show_info("bye bye");
 };
 
