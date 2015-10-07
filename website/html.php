@@ -10,6 +10,10 @@ if(isset($_GET['tz'])){
 	$tz='var now = new Date(); window.location.replace(window.location.href+"'.$con.'tz="+now.getTimezoneOffset());';
 };
 
+if(!isset($_SESSION["bg"])){
+	$_SESSION["bg"]=rand(1,7);
+};
+
 $header='<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="x-dns-prefetch-control" content="off">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,6 +21,15 @@ $header='<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="tex
 <title>MACS - Dashboard</title>
 <link rel="stylesheet" href="css/design.css" type="text/css" media="screen" charset="utf-8">	
 <link rel="stylesheet" href="css/jquery-ui.css"/>
+<style type="text/css">
+	body{
+		background:url(\'images/bg'.$_SESSION["bg"].'.jpg\') no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+	}
+</style>
 <script src="js/jquery.min.js" type=\'text/javascript\'></script>
 <script src="js/jstz.min.js" type=\'text/javascript\'>></script>
 <script src="js/md5.js" type=\'text/javascript\'></script>

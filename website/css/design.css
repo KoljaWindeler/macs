@@ -12,12 +12,7 @@ body{
 	margin:0;
 	padding:0;
 	border:0;
-	background:url('../images/bg.png') no-repeat center center fixed; 
 	background-attachment: fixed;
-        -webkit-background-size: cover;
-        -moz-background-size: cover;
-        -o-background-size: cover;
-        background-size: cover;
 	text-align: right;
 }
 
@@ -42,11 +37,11 @@ table, th, td {
 	margin: 0 auto;  /* setzt den block mittig */
 }
 
-.hover { background-color: rgba(255,255,255,0.15)!important }
+.hover { background-color: rgba(0,0,0,0.15)!important }
 
 .fillme{
 	width:98%;
-	background:rgba(255,255,255,0.45)!important;
+	background:rgba(255,255,255,0.65)!important;
 	color:rgba(0,0,0,0.9);
 }
 
