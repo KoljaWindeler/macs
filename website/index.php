@@ -37,7 +37,7 @@ $resume=0;
 				$stmt->bindParam(":id",$_POST["eid"],PDO::PARAM_INT);
 				$stmt->execute();
 
-				add_log("-",$_POST["eid"],"User deleted");
+				add_log("-",$_POST["eid"],"User deleted","-");
 				show_info("User deleted");
 			}
 			elseif(isset($_POST["submit"]) & ($_POST["submit"]=="Add" || $_POST["submit"]=="Update")){
@@ -83,7 +83,7 @@ $resume=0;
 							if($row["COUNT(*)"]>0){
 								$excute=0;
 								$resume=1;
-								add_log("-","-","Badge ID already in db, entry rejected");
+								add_log("-","-","Badge ID already in db, entry rejected","-");
 								show_info("Entry rejected, duplicate badge");
 							} else {
 								$stmt = $db->prepare("INSERT INTO  `macs`.`user` (`name`,`badge_id`,`email`,`active`,`login`,`hash`) VALUE (:name,:badge_id,:email,1,:login,:hash)");
@@ -103,7 +103,7 @@ $resume=0;
 	
 					load_data(); // reload as user has changed
 					if($_POST["e_id"]!=0){
-						add_log("-",$_POST["e_id"],"User updated");
+						add_log("-",$_POST["e_id"],"User updated","-");
 						show_info("User updated");
 
 						// mark all machines that were affected by this deletation as updateable
@@ -118,7 +118,7 @@ $resume=0;
 						$stmt = $db->prepare("SELECT ID FROM `macs`.`user` ORDER BY ID desc LIMIT 0,1");
 						$stmt->execute();
 						foreach($stmt as $row){
-							add_log("-",$row["ID"],"User created");
+							add_log("-",$row["ID"],"User created","-");
 						};
 						show_info("user created");
 					}; // msg
@@ -148,7 +148,7 @@ $resume=0;
 				$stmt->execute();
 
 				
-				add_log($_POST["eid"],"-","Machine deleted");
+				add_log($_POST["eid"],"-","Machine deleted","-");
 				show_info("Machine deleted");
 			}
 			elseif(isset($_POST["submit"]) & ($_POST["submit"]=="Add" || $_POST["submit"]=="Update")){
@@ -191,7 +191,7 @@ $resume=0;
 							if($row["COUNT(*)"]>0){
 								$excute=0;
 								$resume=1;
-								add_log("-","-","Mach ID already in db, entry rejected");
+								add_log("-","-","Mach ID already in db, entry rejected","-");
 								show_info("Entry rejected, duplicate id");
 							} else {
 								$stmt = $db->prepare("INSERT INTO  `macs`.`mach` (`name`,`mach_nr`,`desc`,`active`) VALUE (:name,:mach_nr,:desc,1)");
@@ -209,13 +209,13 @@ $resume=0;
 
 					load_data(); // reload as user has changed
 					if($_POST["e_id"]!=0){
-					add_log($_POST["e_id"],"-","Machine updated");
+					add_log($_POST["e_id"],"-","Machine updated","-");
 						show_info("machine updated");
 					} else {
 						$stmt = $db->prepare("SELECT ID FROM `macs`.`mach` ORDER BY ID desc LIMIT 0,1");
 						$stmt->execute();
 						foreach($stmt as $row){
-							add_log($row["ID"],"-","Machine created");
+							add_log($row["ID"],"-","Machine created","-");
 						};
 						show_info("machine created");
 					};
@@ -243,7 +243,7 @@ $resume=0;
 			};
 
 
-			add_log("-","-","access right updated");
+			add_log("-","-","access right updated","-");
 			show_info("access right updated");
 		};
 	};
@@ -500,20 +500,84 @@ $o.=$o_conn;
 //////////////// LOG /////////////////
 $title="(20 most recent entries - <a href='index.php?logall#log'>show all</a>)";
 $sql_limit="LIMIT 0,20";
-if(isset($_GET["logall"])){
-	$title="(all) - <a href='index.php#log'>show only 20 entries</a>";
+if(isset($_GET["loglimited"])){
+	$_SESSION["sql_limit"]="yes";
+} elseif(isset($_GET["logall"]) or (isset($_SESSION["sql_limit"]) && $_SESSION["sql_limit"]=="none")){
+	$title="(all) - <a href='index.php?loglimited#log'>show only 20 entries</a>";
 	$sql_limit="";
-}
+	$_SESSION["sql_limit"]="none";
+};
+
+// prepare new links
+$link[0][0]="timestamp";
+$link[0][1]="desc";
+$link[0][2]="Time";
+
+$link[1][0]="event";
+$link[1][1]="desc";
+$link[1][2]="Event";
+
+$link[2][0]="machine_id";
+$link[2][1]="desc";
+$link[2][2]="Machine";
+
+$link[3][0]="user_id";
+$link[3][1]="desc";
+$link[3][2]="User";
+
+//// sorting
+$log_sort_column=$link[0][0];
+$log_sort_dir=$link[0][1];
+
+$MACRO_LOG_SORT_COLUMN="LOG_SORT_COLUMN";
+$MACRO_LOG_SORT_DIR="LOG_SORT_DIR";
+
+
+// accept incoming parameter
+if(isset($_GET[$MACRO_LOG_SORT_COLUMN])){
+	for($i=0;$i<count($link);$i++){
+		if($_GET[$MACRO_LOG_SORT_COLUMN]==$link[$i][0]){
+			$_SESSION[$MACRO_LOG_SORT_COLUMN]=$_GET[$MACRO_LOG_SORT_COLUMN];
+		};
+	};
+};
+
+if(isset($_GET[$MACRO_LOG_SORT_DIR])){
+	if($_GET[$MACRO_LOG_SORT_DIR]=="asc" || $_GET[$MACRO_LOG_SORT_DIR]=="desc"){
+		$_SESSION[$MACRO_LOG_SORT_DIR]=$_GET[$MACRO_LOG_SORT_DIR];
+	}
+};
+
+if(isset($_SESSION[$MACRO_LOG_SORT_COLUMN])){
+	$log_sort_column=$_SESSION[$MACRO_LOG_SORT_COLUMN];
+};
+if(isset($_SESSION[$MACRO_LOG_SORT_DIR])){
+	$log_sort_dir=$_SESSION[$MACRO_LOG_SORT_DIR];
+};
+
+
+for($i=0; $i<count($link); $i++){
+	if($link[$i][0]==$log_sort_column){
+		if($link[$i][1]==$log_sort_dir){
+			$link[$i][1]="asc";
+		};
+	};
+	$link[$i][3]='<a href="index.php?'.$MACRO_LOG_SORT_COLUMN.'='.$link[$i][0].'&'.$MACRO_LOG_SORT_DIR.'='.$link[$i][1].'#log">'.$link[$i][2].'</a>';
+};
+
 $o.='</td></tr><tr class="spacer"><td>&nbsp;</td></tr><tr class="header click"><td>+ Log '.$title.'<a name="log"></a></td></tr><tr><td>';
-$o.='<tr><td><table class="fillme" id="logtable"><tr class="subheader"><td>Time</td><td>Machine</td><td>User</td><td>Event</td><td>Admin</td></tr>';
+$o.='<tr><td><table class="fillme" id="logtable"><tr class="subheader"><td>'.$link[0][3].'</td><td>'.$link[1][3].'</td><td>'.$link[2][3].'</td><td>'.$link[3][3].'</td><td>Info</td></tr>';
+
+echo "bind, ".$log_sort_column." and ".$log_sort_dir;
 
 $o_log="";
-$stmt = $db->prepare('SELECT * FROM log ORDER BY timestamp desc '.$sql_limit);
+$stmt = $db->prepare('SELECT * FROM log ORDER BY `'.$log_sort_column.'` '.$log_sort_dir.' '.$sql_limit);
 $stmt->execute();
 foreach ($stmt as $row) {
 	$u_out="-";
 	$m_out="-";
 	$l_out="-";
+	$extra="-";
 
 	if($row["machine_id"]>0){
 		$m=get_mach($row["machine_id"]);
@@ -531,23 +595,27 @@ foreach ($stmt as $row) {
 		} else {
 			$u_out="db hickup";
 		};
-	}
+	};
+
+		// extra info
 
 	if($row["login_id"]>0){
 		$l=get_user($row["login_id"]);
 		if($l!=-1){
-			$l_out=$l["name"];
+			$extra='by '.$l["name"];
 		} else {
-			$l_out="db hickup";
+			$extra="by "."db hickup";
 		};
+	} else if($row["usage"]!="-" && !empty($row["usage"]) && $extra=="-"){
+		$extra="Usage ".date("H:i:s",$row["usage"]);
 	};
 	
  	 $o_log.='<tr class="hl">
 		<td>'.date("Y/m/d H:i",$row["timestamp"]-$_SESSION['tz']).'</td>
+		<td>'.$row["event"].'</td>
 		<td>'.$m_out.'</td>
 		<td>'.$u_out.'</td>
-		<td>'.$row["event"].'</td>
-		<td>'.$l_out.'</td>
+		<td>'.$extra.'</td>
 		</tr>';
 
 };
