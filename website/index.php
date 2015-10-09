@@ -47,14 +47,14 @@ $resume=0;
 					$execute=0;
 					$resume=1;
 					show_info("You have to provide a name");
-				} elseif($_POST["e_badge"]=="-" or empty($_POST["e_badge"])){
+				} elseif($_POST["e_badge"]=="-" or empty($_POST["e_badge"]) or !is_numeric($_POST["e_badge"])){
 					$execute=0;
 					$resume=1;
-					show_info("You have to provide a Badge id");
-				} elseif($_POST["e_email"]=="-" or empty($_POST["e_email"])){
+					show_info("You have to provide a numeric Badge id");
+				} elseif($_POST["e_email"]=="-" or empty($_POST["e_email"]) or !filter_var($_POST["e_email"], FILTER_VALIDATE_EMAIL)){
 					$execute=0;
 					$resume=1;
-					show_info("You have to provide a email");
+					show_info("You have to provide a valid email");
 				} elseif($_POST["e_login"]!="" and $_POST["macs_pw_md5"]=="d41d8cd98f00b204e9800998ecf8427e"){ // d41d8cd98f00b204e9800998ecf8427e = md5("")
 					$execute=0;
 					$resume=1;
@@ -567,8 +567,6 @@ for($i=0; $i<count($link); $i++){
 
 $o.='</td></tr><tr class="spacer"><td>&nbsp;</td></tr><tr class="header click"><td>+ Log '.$title.'<a name="log"></a></td></tr><tr><td>';
 $o.='<tr><td><table class="fillme" id="logtable"><tr class="subheader"><td>'.$link[0][3].'</td><td>'.$link[1][3].'</td><td>'.$link[2][3].'</td><td>'.$link[3][3].'</td><td>Info</td></tr>';
-
-echo "bind, ".$log_sort_column." and ".$log_sort_dir;
 
 $o_log="";
 $stmt = $db->prepare('SELECT * FROM log ORDER BY `'.$log_sort_column.'` '.$log_sort_dir.' '.$sql_limit);
