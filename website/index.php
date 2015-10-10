@@ -165,7 +165,7 @@ $resume=0;
 				} elseif(!($_POST["e_mach_nr"]<64 && $_POST["e_mach_nr"]>0)){
 					$execute=0;
 					$resume=1;
-					show_info("Valid range for Mach Nr 0-63");
+					show_info("Valid range for Mach Nr 1-63");
 				} elseif($_POST["e_desc"]=="-" or empty($_POST["e_desc"])){
 					$execute=0;
 					$resume=1;
@@ -498,130 +498,15 @@ $o.=$o_conn;
 
 
 //////////////// LOG /////////////////
-$title="(20 most recent entries - <a href='index.php?logall#log'>show all</a>)";
-$sql_limit="LIMIT 0,20";
-if(isset($_GET["loglimited"])){
-	$_SESSION["sql_limit"]="yes";
-} elseif(isset($_GET["logall"]) or (isset($_SESSION["sql_limit"]) && $_SESSION["sql_limit"]=="none")){
-	$title="(all) - <a href='index.php?loglimited#log'>show only 20 entries</a>";
-	$sql_limit="";
-	$_SESSION["sql_limit"]="none";
-};
-
-// prepare new links
-$link[0][0]="timestamp";
-$link[0][1]="desc";
-$link[0][2]="Time";
-
-$link[1][0]="event";
-$link[1][1]="desc";
-$link[1][2]="Event";
-
-$link[2][0]="machine_id";
-$link[2][1]="desc";
-$link[2][2]="Machine";
-
-$link[3][0]="user_id";
-$link[3][1]="desc";
-$link[3][2]="User";
-
-//// sorting
-$log_sort_column=$link[0][0];
-$log_sort_dir=$link[0][1];
-
-$MACRO_LOG_SORT_COLUMN="LOG_SORT_COLUMN";
-$MACRO_LOG_SORT_DIR="LOG_SORT_DIR";
-
-
-// accept incoming parameter
-if(isset($_GET[$MACRO_LOG_SORT_COLUMN])){
-	for($i=0;$i<count($link);$i++){
-		if($_GET[$MACRO_LOG_SORT_COLUMN]==$link[$i][0]){
-			$_SESSION[$MACRO_LOG_SORT_COLUMN]=$_GET[$MACRO_LOG_SORT_COLUMN];
-		};
-	};
-};
-
-if(isset($_GET[$MACRO_LOG_SORT_DIR])){
-	if($_GET[$MACRO_LOG_SORT_DIR]=="asc" || $_GET[$MACRO_LOG_SORT_DIR]=="desc"){
-		$_SESSION[$MACRO_LOG_SORT_DIR]=$_GET[$MACRO_LOG_SORT_DIR];
-	}
-};
-
-if(isset($_SESSION[$MACRO_LOG_SORT_COLUMN])){
-	$log_sort_column=$_SESSION[$MACRO_LOG_SORT_COLUMN];
-};
-if(isset($_SESSION[$MACRO_LOG_SORT_DIR])){
-	$log_sort_dir=$_SESSION[$MACRO_LOG_SORT_DIR];
-};
-
-
-for($i=0; $i<count($link); $i++){
-	if($link[$i][0]==$log_sort_column){
-		if($link[$i][1]==$log_sort_dir){
-			$link[$i][1]="asc";
-		};
-	};
-	$link[$i][3]='<a href="index.php?'.$MACRO_LOG_SORT_COLUMN.'='.$link[$i][0].'&'.$MACRO_LOG_SORT_DIR.'='.$link[$i][1].'#log">'.$link[$i][2].'</a>';
-};
+include("php_module/module_log.php");
 
 $o.='</td></tr><tr class="spacer"><td>&nbsp;</td></tr><tr class="header click"><td>+ Log '.$title.'<a name="log"></a></td></tr><tr><td>';
-$o.='<tr><td><table class="fillme" id="logtable"><tr class="subheader"><td>'.$link[0][3].'</td><td>'.$link[1][3].'</td><td>'.$link[2][3].'</td><td>'.$link[3][3].'</td><td>Info</td></tr>';
+$o.='<tr><td>';
 
-$o_log="";
-$stmt = $db->prepare('SELECT * FROM log ORDER BY `'.$log_sort_column.'` '.$log_sort_dir.' '.$sql_limit);
-$stmt->execute();
-foreach ($stmt as $row) {
-	$u_out="-";
-	$m_out="-";
-	$l_out="-";
-	$extra="-";
-
-	if($row["machine_id"]>0){
-		$m=get_mach($row["machine_id"]);
-		if($m!=-1){
-			$m_out=$m["name"];
-		} else {
-			$m_out="db hickup";
-		};
-	}
-
-	if($row["user_id"]>0){
-		$u=get_user($row["user_id"]);
-		if($u!=-1){
-			$u_out=$u["name"];
-		} else {
-			$u_out="db hickup";
-		};
-	};
-
-		// extra info
-
-	if($row["login_id"]>0){
-		$l=get_user($row["login_id"]);
-		if($l!=-1){
-			$extra='by '.$l["name"];
-		} else {
-			$extra="by "."db hickup";
-		};
-	} else if($row["usage"]!="-" && !empty($row["usage"]) && $extra=="-"){
-		$extra="Usage ".date("H:i:s",$row["usage"]);
-	};
-	
- 	 $o_log.='<tr class="hl">
-		<td>'.date("Y/m/d H:i",$row["timestamp"]-$_SESSION['tz']).'</td>
-		<td>'.$row["event"].'</td>
-		<td>'.$m_out.'</td>
-		<td>'.$u_out.'</td>
-		<td>'.$extra.'</td>
-		</tr>';
-
-};
 $o.=$o_log;
-
 //////////////// LOG /////////////////
 
-$o.='</td></tr></table></td></tr></table>';
+$o.='</td></tr></table>';
 
 
 if(!empty($info)){
