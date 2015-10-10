@@ -14,7 +14,7 @@ $(document).ready(function() {
 					$('.logentry').remove();
 
 					//console.log("I found "+lines.length+" lines in the response");
-					for(i=1; i<lines.length-1;i++){
+					for(i=0; i<lines.length-1;i++){
 						var col=lines[i].split(";");
 						table.append('<tr class="logentry hl"><td>'+col[0]+'</td><td>'+col[1]+'</td><td>'+col[2]+'</td><td>'+col[3]+'</td><td>'+col[4]+'</td></tr>');
 						//console.log("line "+i+" has "+col.length+" data, first "+col[0]);

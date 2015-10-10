@@ -9,7 +9,7 @@ if(isset($_GET["mach_nr"])){
 		$csv.=intval($row["badge_id"],10).",";
 	};
 
-	echo substr($csv,0,-1);
+	echo $csv;
 
 
 	// update last seen
