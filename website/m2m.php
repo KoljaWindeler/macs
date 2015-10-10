@@ -6,7 +6,7 @@ if(isset($_GET["mach_nr"])){
 	$stmt->execute();
 	$csv="";
         foreach($stmt as $row){
-		$csv.=$row["badge_id"].",";
+		$csv.=intval($row["badge_id"],10).",";
 	};
 
 	echo substr($csv,0,-1);
