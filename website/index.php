@@ -19,6 +19,9 @@ $resume=0;
 	////////////////// USER ///////////////
 	if(isset($_POST["edit"])){
 		if($_POST["edit"]=="user"){ // edit or delte button
+			if(isset($_POST["e_badge"])){
+				$_POST["e_badge"]=intval($_POST["e_badge"]);
+			};
 			if(isset($_POST["submit"]) & $_POST["submit"]=="delete"){ // delete
 				$stmt = $db->prepare("UPDATE  `macs`.`user` SET `active` = 0 WHERE  `user`.`id` =:id;");
 				$stmt->bindParam(":id",$_POST["eid"],PDO::PARAM_INT);
