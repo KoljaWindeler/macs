@@ -10,7 +10,7 @@ if(isset($_GET['tz'])){
 };
 
 if(!isset($_SESSION["bg"]) || $_SESSION["bg"]==""){
-	$_SESSION["bg"]=rand(1,6);
+	$_SESSION["bg"]=rand(1,3);
 };
 
 $header='<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
