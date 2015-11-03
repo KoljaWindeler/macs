@@ -30,7 +30,7 @@ if(isset($_GET["logme"]) && isset($_GET["event"]) && (isset($_GET["mach_nr"]) ||
 	} else {
 		$user="";
 		$stmt = $db->prepare("SELECT `id` FROM  `macs`.`user` WHERE badge_id=:badge and active=1");
-		$stmt->bindParam("badge",$_GET["badge"],PDO::PARAM_STR);
+		$stmt->bindParam("badge",intval($_GET["badge"]),PDO::PARAM_STR);
 		$stmt->execute();
 		foreach($stmt as $row){
 			$user=$row["id"];
