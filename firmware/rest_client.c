@@ -102,13 +102,13 @@ void RestClient::setHeader(const char* header){
 int RestClient::request(const char* method, const char* path,
                   const char* body, String* response){
                       
-  const char HOSTNAME[5]={(host>>24)&0xff,(host>>16)&0xff,(host>>8)&0xff,(host)&0xff,0x00}; // needed for the print
+  const char HOSTNAME[9]={((host>>24)&0xff)+'0','.',((host>>16)&0xff)+'0','.',((host>>8)&0xff)+'0','.',((host)&0xff)+'0','.',0x00}; // needed for the print
 
   HTTP_DEBUG_PRINT("HTTP: connect\n");
   
-  Serial.println("und los");
+  //Serial.println("und los");
   delay(100);
-  Serial.print("connect to ");
+  /*Serial.print("connect to ");
   Serial.print(host[0],DEC);
   Serial.print(".");
   Serial.print(host[1],DEC);
@@ -116,10 +116,7 @@ int RestClient::request(const char* method, const char* path,
   Serial.print(host[2],DEC);
   Serial.print(".");
   Serial.print(host[3],DEC);
-  Serial.println("!");
-  uint32_t freemem = System.freeMemory();
-  Serial.print("free memory: ");
-  Serial.println(freemem);
+  Serial.println("!");*/
   //delay(2000);
 
   if(client.connect(host, port)){
