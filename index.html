@@ -24,18 +24,23 @@
 
 <p> This project contains the firmware, software and pcb documents used for our new Makerspace in Houston Texas.<br><br>
 A makerspace shall be a place to enable everyone to realize everything they are dreaming about, but it is also a danagerous place. A simple tablesaw can be a outstanding tool if one knows how to
-use it, but it's also a very danagerous tool if one hasn't received the proper training. The intention of the M.A.C.S. is to limit the access to those members who are able to use the tools.</p>
+use it, but it's also a very danagerous tool if one hasn't received the proper training. The intention of the M.A.C.S. is to limit the access to those members who are able to use the tools.
+<br><br><img src="images/macs_demo.jpg" width="50%" height="50%">
+</p>
 
 <h3>
 <a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Components</h3>
 
 <p>The M.A.C.S. consists of a central server, responsible to provide a nice little GUI to the admin and a variable number of units to controll the access on the machine. 
-The control units are connected to the server via WiFi so that no cables are needed.
+The control units are connected to the server via WiFi so that no cables are needed. 
 </p>
 
 
 <h3><a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Units</h3>
-<p>The Units are based on the Particle Photon, a C++ programmable, WiFi-enabled controller. Each unit is identified over a customizable hardware id in the range of 1-127.
+<p>The Units are based on the Particle Photon, a C++ programmable, WiFi-enabled controller. Each unit is identified over a customizable hardware id in the range of 1-127. Each unit
+is equipped with a RFID reader coil to read the ID of an insered card.
+
+<br>
 <br>The firmware for those modules is available inside the Git-Project in the "Firmware" folder at <a href="https://github.com/KoljaWindeler/macs/tree/master/firmware">https://github.com/KoljaWindeler/macs/tree/master/firmware</a>.
 <br>
 <br>The onboard relay can be used to connect any kind of controll circuit to enable / disable the machine in controll.
