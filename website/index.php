@@ -165,10 +165,10 @@ $resume=0;
 					$execute=0;
 					$resume=1;
 					show_info("You have to provide a Mach id");
-				} elseif(!($_POST["e_mach_nr"]<64 && $_POST["e_mach_nr"]>0)){
+				} elseif(!($_POST["e_mach_nr"]<128 && $_POST["e_mach_nr"]>0)){
 					$execute=0;
 					$resume=1;
-					show_info("Valid range for Mach Nr 1-63");
+					show_info("Valid range for Mach Nr 1-127");
 				} elseif($_POST["e_desc"]=="-" or empty($_POST["e_desc"])){
 					$execute=0;
 					$resume=1;
