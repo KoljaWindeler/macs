@@ -4,9 +4,11 @@
 void set_update_login(){
     WiFi.on();
     WiFi.clearCredentials();
-    while(!WiFi.hasCredentials()){
+    int i=0;
+    while(!WiFi.hasCredentials() && i<13){
+        i++;
         WiFi.setCredentials("ajlokert", "qweqweqwe",WPA2);
-        WiFi.setCredentials("shop", "xxxx",WPA2);
+        WiFi.setCredentials("shop", "abcdefgh",WPA2);
         delay(1000);
         if(WiFi.hasCredentials()){
             Serial.println("WiFi credentials saved");
@@ -19,8 +21,10 @@ void set_update_login(){
 void set_macs_login(){
     WiFi.on();
     WiFi.clearCredentials();
-    while(!WiFi.hasCredentials()){
-        WiFi.setCredentials("macs", "xxxxx",WPA2);
+    int i=0;
+    while(!WiFi.hasCredentials() && i<13){
+        i++;
+        WiFi.setCredentials("macs", "6215027094",WPA2);
         delay(1000);
         if(WiFi.hasCredentials()){
             Serial.println("WiFi credentials saved");
