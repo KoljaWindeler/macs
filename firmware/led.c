@@ -12,13 +12,12 @@ LED::LED(uint8_t pin,uint16_t delay, uint8_t weak, uint8_t inverse){
     m_state=OFF;
     m_inverse=inverse;
     
-    // nonsense state to force update with next off()-call
-    m_state=99; 
-    off(0);
-    
+    m_state=OFF; 
     m_next_action=0;
-    m_current_mode=OFF;
-    m_last_mode=OFF;
+    
+    for(int i=0;i<MAX_MODE_HIST;i++){
+        m_mode[i]=OFF;
+    }
 };
 
 void LED::on_delayed(){
@@ -28,44 +27,45 @@ void LED::on_delayed(){
     Serial.println(" on delayed");
     #endif
     
-    if(m_current_mode!=DELAYED_ON){
-        m_last_mode=m_current_mode;
-        m_current_mode=DELAYED_ON;
+    for(int i=MAX_MODE_HIST-1;i>0;i--){
+        m_mode[i]=m_mode[i-1];
     }
-    
-    on(0);  // on, without remember mode, to keep our mode
+    m_mode[0]=DELAYED_ON;
+
+    hw_on();
     m_next_action=millis()+m_delay;
 };
 
 // invert LED
 void LED::toggle(){
     if(m_state==OFF){
-        on();
+        hw_on();
     } else {
-        off();
+        hw_off();
     }
 }
 
 
 // standard "on()" should save the old mode of the LED, so call with with remember
 void LED::on(){
-    on(1);
-}
-void LED::on(uint8_t remember){
     #ifdef DEBUG_JKW
     Serial.print("Swtich led ");
     Serial.print(m_pin);
     Serial.println(" on");
     #endif
     
-    // mode saving?
-    if(remember){
-        if(m_current_mode!=ON){
-            m_last_mode=m_current_mode;
-            m_current_mode=ON;
-        }
+    // mode saving
+    for(int i=MAX_MODE_HIST-1;i>0;i--){
+        m_mode[i]=m_mode[i-1];
     }
-    
+    m_mode[0]=ON;
+
+    hw_on();
+    m_next_action=0;
+}
+
+
+void LED::hw_on(){
     // just change it if we haven't been in that state anyway
     if(m_state!=ON){
         if(!m_inverse){
@@ -82,23 +82,27 @@ void LED::on(uint8_t remember){
             digitalWrite(m_pin,0);
         }
         m_state=ON;
-        m_next_action=0;
     };
 }
 
-// standard "off()" should save the old mode of the LED, so call with with remember
 void LED::off(){
-    off(1);
-};
-void LED::off(uint8_t remember){
-    // save the state
-    if(remember){
-        if(m_current_mode!=OFF){
-            m_last_mode=m_current_mode;
-            m_current_mode=OFF;
-        }
-    }
+    #ifdef DEBUG_JKW
+    Serial.print("Swtich led ");
+    Serial.print(m_pin);
+    Serial.println(" to off");
+    #endif
     
+    // save the state
+    for(int i=MAX_MODE_HIST-1;i>0;i--){
+        m_mode[i]=m_mode[i-1];
+    }
+    m_mode[0]=OFF;
+    
+    hw_off();
+    m_next_action=0;
+}
+    
+void LED::hw_off(){
     // only call it if needed
     if(m_state!=OFF){
         if(!m_inverse){
@@ -115,20 +119,18 @@ void LED::off(uint8_t remember){
             };
         }
         m_state=OFF;
-        m_next_action=0;
     };
 };
 
+
 void LED::check(){
     if(m_next_action!=0 && millis()>m_next_action){
-        if(m_current_mode==BLINK){
-            if(m_state==ON){
-                off(0);
-            } else {
-                on(0);
-            };
+        Serial.print("w");
+        Serial.println(m_mode[0]);
+        if(m_mode[0]==BLINK){
+            toggle();
             m_next_action=millis()+BLINK_DELAY;
-        } else if(m_current_mode==DELAYED_ON) {
+        } else if(m_mode[0]==DELAYED_ON) {
             resume();
         };
     };
@@ -142,10 +144,12 @@ void LED::blink(){
     Serial.println(" to blink");
     #endif
     
-    if(m_current_mode!=BLINK){
-        m_last_mode=m_current_mode;
-        m_current_mode=BLINK;
+    for(int i=MAX_MODE_HIST-1;i>0;i--){
+        m_mode[i]=m_mode[i-1];
     }
+    m_mode[0]=BLINK;
+    
+
     m_next_action=millis()-1;
     check();
 }
@@ -156,19 +160,31 @@ void LED::resume(){
     Serial.println(m_pin);
     #endif
     
-    if(m_current_mode==m_last_mode){
-        off();
-    } else {
-        m_current_mode=m_last_mode;
-    };
     
-    if(m_current_mode==BLINK || m_current_mode==DELAYED_ON){
+    for(int i=0;i<MAX_MODE_HIST-1;i++){
+        m_mode[i]=m_mode[i+1];
+    }
+    m_mode[MAX_MODE_HIST-1]=OFF;
+    
+    
+    #ifdef DEBUG_JKW
+    Serial.print("to state ");
+    Serial.println(m_mode[0]);
+    #endif
+    
+    
+    if(m_mode[0]==BLINK){
         m_next_action=millis()-1;
         check();
-    } else if(m_current_mode==ON){
-        on();
-    } else if(m_current_mode==OFF){
-        off();
+    } else if(m_mode[0]==DELAYED_ON){
+        hw_on();
+        m_next_action=millis()+m_delay;
+    } else if(m_mode[0]==ON){
+        hw_on();
+        m_next_action=0;
+    } else if(m_mode[0]==OFF){
+        hw_off();
+        m_next_action=0;
     };
 }
 
