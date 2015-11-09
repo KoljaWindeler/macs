@@ -125,8 +125,6 @@ void LED::hw_off(){
 
 void LED::check(){
     if(m_next_action!=0 && millis()>m_next_action){
-        Serial.print("w");
-        Serial.println(m_mode[0]);
         if(m_mode[0]==BLINK){
             toggle();
             m_next_action=millis()+BLINK_DELAY;
