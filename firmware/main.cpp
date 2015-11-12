@@ -1,3 +1,4 @@
+
 /* LED Patter
 * red,green,red,green  -> i give you 10 sec to connect to me, before I start
 * red on, green on -> I'm trying to connect to my server
@@ -138,7 +139,7 @@ void setup() {
         Serial.println("- Updating -");
         
         if(!update_ids()){
-            set_connected(0,true); // force LED update
+            set_connected(0,true); // force LED update for not connected
             read_EEPROM();
         } else {
             set_connected(1);
@@ -204,6 +205,7 @@ void loop() {
                 tries=0;
                 // takes long
                 create_report(LOG_RELAY_CONNECTED,currentTag,0);
+                
                 green_led.on();
             } else {
                 // if we have a card that is not known to be valid we should maybe check our database
@@ -240,7 +242,7 @@ void loop() {
     
     
     // card moved away
-    if(digitalRead(TAG_IN_RANGE_INPUT)==0 && currentTag!=-1){
+    if((digitalRead(TAG_IN_RANGE_INPUT)==0 || Serial1.available()) && currentTag!=-1){ // if serial1 has avaioable chars, it means that TAG IN RANGE had to be low at some point, its just a new card there now!
         // open the relay as soon as the tag is gone
         if(current_relay_state==RELAY_CONNECTED){
             uint32_t open_time_sec=relay(RELAY_DISCONNECTED);
@@ -250,7 +252,7 @@ void loop() {
         } else {
             red_led.resume();    
         }
-        
+    
         currentTag=-1;      // reset current user
         currentTagIndex=0;  // reset index counter for incoming bytes
         
@@ -262,32 +264,10 @@ void loop() {
     }
     
     
-    // maintain status led's
-    if(red_led.getState()==BLINK && connected){
-        red_led.off();
-        green_led.blink();
-    } else if(green_led.getState()==BLINK && !connected){
-        red_led.blink();
-        green_led.off();
-    }
-    
     // see if we should switch off the leds by now
     db_led.check();
     red_led.check();
     green_led.check();
-    
-    // test
-    /*if(last_server_request+100<millis()){
-        static int i=0;
-        Serial.println(i);
-        i++;
-        //if(i%2){
-        //     create_report(LOG_RELAY_DISCONNECTED,6215027,7);
-        //} else {
-        //    create_report(LOG_RELAY_CONNECTED,6215027,0);
-        //}
-        create_report(LOG_NOTHING,0,0);
-    }*/
 }
 
 
@@ -365,6 +345,7 @@ bool tag_found(uint8_t *buf,uint32_t *tag){
         currentTagIndex=(currentTagIndex+1)%TAGSTRINGSIZE;
         
         if(currentTagIndex==0){
+            Serial1.flush();
             return validate_tag(buf,tag);
         };
     }
