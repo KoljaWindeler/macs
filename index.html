@@ -12,7 +12,7 @@
   <body>
     <section class="page-header">
       <h1 class="project-name">M.A.C.S.</h1>
-      <h2 class="project-tagline">Makerspace Access Controll System</h2>
+      <h2 class="project-tagline">Makerspace Access control System</h2>
       <a href="https://github.com/KoljaWindeler/macs" class="btn">View on GitHub</a>
       <a href="https://github.com/KoljaWindeler/macs/zipball/master" class="btn">Download .zip</a>
       <a href="https://github.com/KoljaWindeler/macs/tarball/master" class="btn">Download .tar.gz</a>
@@ -23,36 +23,36 @@
 <a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span class="octicon octicon-link"></span></a>Welcome to the GitHub Page of the M.A.C.S. Project</h3>
 
 <p> This project contains the firmware, software and pcb documents used for our new Makerspace in Houston Texas.<br><br>
-A makerspace shall be a place to enable everyone to realize everything they are dreaming about, but it is also a danagerous place. A simple tablesaw can be a outstanding tool if one knows how to
-use it, but it's also a very danagerous tool if one hasn't received the proper training. The intention of the M.A.C.S. is to limit the access to those members who are able to use the tools.
+A makerspace shall be a place to enable everyone to realize everything they are dreaming about, but it is also a dangerous place. A simple table-saw can be a outstanding tool if one knows how to
+use it, but it's also a very dangerous tool if one hasn't received the proper training. The intention of the M.A.C.S. is to limit the access to those members who are able to use the tools.
 <br><br><img src="images/macs_demo.jpg" width="50%" height="50%">
 </p>
 
 <h3>
 <a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Components</h3>
 
-<p>The M.A.C.S. consists of a central server, responsible to provide a nice little GUI to the admin and a variable number of units to controll the access on the machine. 
+<p>The M.A.C.S. consists of a central server, responsible to provide a nice little GUI to the admin and a variable number of units to control the access on the machine. 
 The control units are connected to the server via WiFi so that no cables are needed. 
 </p>
 
 
 <h3><a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span class="octicon octicon-link"></span></a>Units</h3>
-<p>The Units are based on the Particle Photon, a C++ programmable, WiFi-enabled controller. Each unit is identified over a customizable hardware id in the range of 1-127. Each unit
-is equipped with a RFID reader coil to read the ID of an insered card.
+<p>The Units are based on the Particle Photon, a C++ programmable, WiFi-enabled controler. Each unit is identified over a customizable hardware id in the range of 1-127. Each unit
+is equipped with a RFID reader coil to read the ID of an inserted card.
 
 <br>
 <br>The firmware for those modules is available inside the Git-Project in the "Firmware" folder at <a href="https://github.com/KoljaWindeler/macs/tree/master/firmware">https://github.com/KoljaWindeler/macs/tree/master/firmware</a>.
 <br>
-<br>The onboard relay can be used to connect any kind of controll circuit to enable / disable the machine in controll.
+<br>The on-board relay can be used to connect any kind of control circuit to enable / disable the machine in control.
 <br><img src="images/macs_module_complete.jpg" width="50%" height="50%">
 
 <br>Power can be supplied as AC or DC in the range of 6 to 32V. Therefor the unit can be powered by the most common 24VAC circuits inside a router/lathe.
 <br><img src="images/macs_module_terminal.jpg" width="50%" height="50%">
 
-<br>The PCB can be selfmade on only one layer, the current version is available at <a href="https://github.com/KoljaWindeler/macs/tree/master/pcb">https://github.com/KoljaWindeler/macs/tree/master/pcb</a>
+<br>The PCB can be self-made on only one layer, the current version is available at <a href="https://github.com/KoljaWindeler/macs/tree/master/pcb">https://github.com/KoljaWindeler/macs/tree/master/pcb</a>
 <br><img src="images/macs_solder.jpg" width="50%" height="50%"><br>
 
-<br>Theis demo unit shows a rejected card (red led on)
+<br>This demo unit shows a rejected card (red led on)
 <br><img src="images/macs_demo.jpg" width="50%" height="50%">
 
 <br>
@@ -67,16 +67,16 @@ The front panel is self milled and can not be ordered, sry.
 We've decided to take a simple Raspberry Pi as server to have a high amount of flexibility but keeping the cost, power consumption and space low at the same time.
 Any other hardware could be used as the requirement for the server is only a  MySQL, PHP, Ngnix combination to serve as GUI for the administration.
 The GUI consists of four sections. 
-<br><br>The first section is used to display add and modify the registerd user. The connection between the RFID Card ID and the name of the member is made in this section.<br>
+<br><br>The first section is used to display add and modify the registered user. The connection between the RFID Card ID and the name of the member is made in this section.<br>
 <img src="images/user.png"><br>
 
-<br><br>The second section is used to setup all available machine units. Each machine has a hardware id 1-127 which is assigend to a machine name in the part of the GUI<br>
+<br><br>The second section is used to setup all available machine units. Each machine has a hardware id 1-127 which is assigned to a machine name in the part of the GUI<br>
 <img src="images/station.png"><br>
 
 <br><br>The third section is the most important one. The administrator can give or revoce the access rights to the user<br>
 <img src="images/rights.png"><br>
 
-<br><br>The last section shows all recent activities. Log entries are created for each interaction, e.g. Unlock a Unit, lock it agin, access rejected, updates per station, ..
+<br><br>The last section shows all recent activities. Log entries are created for each interaction, e.g. Unlock a Unit, lock it again, access rejected, updates per station, ..
 <img src="images/logging.png"><br>
 <br>
 All PHP pages, required to setup a server are inside the folder "website" in the git project at <a href="https://github.com/KoljaWindeler/macs/tree/master/website">https://github.com/KoljaWindeler/macs/tree/master/website</a>.
@@ -88,8 +88,8 @@ All PHP pages, required to setup a server are inside the folder "website" in the
 
 <ul>
 <li>2015/11 - M.A.C.S. will be shown at the Maker Fair in Houston</li>
-<li>2015/11 - Webinterface running, three flily assembled units ready for beta testing</li>
-<li>2015/10 - First prototyp on breadboards</li>
+<li>2015/11 - Webinterface running, three fully assembled units ready for beta testing</li>
+<li>2015/10 - First prototype on breadboards</li>
 <li>2015/09 - Project start, components ordered</li>
 </ul>
 
