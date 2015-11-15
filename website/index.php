@@ -509,6 +509,15 @@ $o.='<tr><td>';
 $o.=$o_log;
 //////////////// LOG /////////////////
 
+//////////////// LOG /////////////////
+include("php_module/module_usage.php");
+
+$o.='</td></tr><tr class="spacer"><td>&nbsp;</td></tr><tr class="header click"><td>+ Usage<a name="usage"></a></td></tr><tr><td>';
+$o.='<tr><td>';
+
+$o.=$o_usage;
+//////////////// LOG /////////////////
+
 $o.='</td></tr></table>';
 
 
