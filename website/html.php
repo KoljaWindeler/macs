@@ -29,6 +29,9 @@ $header='<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="tex
   background-size: cover;
 	}
 </style>
+
+<script type=\'text/javascript\' src="js/amcharts.js"></script>
+<script type=\'text/javascript\' src="js/serial.js"></script>
 <script src="js/jquery.min.js" type=\'text/javascript\'></script>
 <script src="js/jstz.min.js" type=\'text/javascript\'>></script>
 <script src="js/md5.js" type=\'text/javascript\'></script>
