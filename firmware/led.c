@@ -15,10 +15,15 @@ LED::LED(uint8_t pin,uint16_t delay, uint8_t weak, uint8_t inverse){
     m_state=OFF; 
     m_next_action=0;
     
+    clear();
+};
+
+void LED::clear(){
     for(int i=0;i<MAX_MODE_HIST;i++){
         m_mode[i]=OFF;
     }
-};
+    hw_off();
+}
 
 void LED::on_delayed(){
     #ifdef DEBUG_JKW
