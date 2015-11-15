@@ -21,11 +21,13 @@
 // hardware
 #define MAX_JUMPER_PIN 6 // 2^(6+1)-1=127
 
-#define RELAY_PIN D3
-#define RED_LED_PIN D4
-#define GREEN_LED_PIN D6
-#define DB_LED_AND_UPDATE_PIN D0
-#define TAG_IN_RANGE_INPUT D1
+#define DB_LED_AND_UPDATE_PIN   D0
+#define TAG_IN_RANGE_INPUT      D1
+#define ANTENNA_PIN             D2
+#define RELAY_PIN               D3
+#define RED_LED_PIN             D4
+#define READ_BACK_PIN           D5
+#define GREEN_LED_PIN           D6
 
 // storage
 #define MAX_KEYS 200 // max number of keys
@@ -86,8 +88,18 @@ void setup() {
     }
     pinMode(RELAY_PIN,OUTPUT);          // driver for the relay
     pinMode(TAG_IN_RANGE_INPUT,INPUT);
-    // the db led is a weak and inverterted LED on the same pin as the update_input, this will set the pin to input_pullup anyway //pinMode(DB_LED_AND_UPDATE_PIN,INPUT_PULLUP);
     
+    
+    
+    // antenna selection
+    pinMode(ANTENNA_PIN,INPUT_PULLUP);
+    if(digitalRead(ANTENNA_PIN)==LOW){ // high == no jumper to pull it down 
+        WiFi.selectAntenna(ANT_EXTERNAL);
+    } else {
+        WiFi.selectAntenna(ANT_AUTO);
+    }
+    
+    // the db led is a weak and inverterted LED on the same pin as the update_input, this will set the pin to input_pullup anyway //pinMode(DB_LED_AND_UPDATE_PIN,INPUT_PULLUP);
     Serial.begin(115200);
     Serial1.begin(9600);
 
