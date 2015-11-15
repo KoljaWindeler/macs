@@ -107,7 +107,7 @@ int RestClient::request(const char* method, const char* path,
   HTTP_DEBUG_PRINT("HTTP: connect\n");
   
   //Serial.println("und los");
-  delay(100);
+ // delay(100);
   /*Serial.print("connect to ");
   Serial.print(host[0],DEC);
   Serial.print(".");
@@ -121,10 +121,10 @@ int RestClient::request(const char* method, const char* path,
 
   if(client.connect(host, port)){
     
-    delay(200);
+    //delay(200);
     Serial.flush();
     Serial.println("\r\nconnected");
-    delay(200);
+    //delay(200);
   
     HTTP_DEBUG_PRINT("HTTP: connected\n");
     HTTP_DEBUG_PRINT("REQUEST: \n");
@@ -161,7 +161,7 @@ int RestClient::request(const char* method, const char* path,
     }
 
     //make sure you write all those bytes.
-    delay(200);
+    //delay(200);
 
     HTTP_DEBUG_PRINT("HTTP: call readResponse\n");
     int statusCode = readResponse(response);
@@ -171,7 +171,7 @@ int RestClient::request(const char* method, const char* path,
     HTTP_DEBUG_PRINT("HTTP: stop client\n");
     num_headers = 0;
     client.stop();
-    delay(50);
+    //delay(50);
     HTTP_DEBUG_PRINT("HTTP: client stopped\n");
 
     return statusCode;
