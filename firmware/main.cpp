@@ -353,10 +353,6 @@ uint32_t relay(int8_t input){
 bool tag_found(uint8_t *buf,uint32_t *tag){
     uint8_t temp;
     
-    Serial.print("->");
-    Serial.print(Serial1.available());
-    Serial.println("<-");
-    
     while(Serial1.available()){
         
         // if we haven't received input for a long time, make sure that we writing to pos 1
@@ -379,7 +375,6 @@ bool tag_found(uint8_t *buf,uint32_t *tag){
                 Serial1.read();
             }
             
-            Serial.println("flushing");
             return validate_tag(buf,tag);
         };
     }
