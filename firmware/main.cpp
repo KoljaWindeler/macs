@@ -30,28 +30,28 @@
 #define GREEN_LED_PIN           D6
 
 // storage
-#define MAX_KEYS 200 // max number of keys
-#define TAGSTRINGSIZE 5 // tag length
+#define MAX_KEYS                200 // max number of keys
+#define TAGSTRINGSIZE           5 // tag length
 
 // macros
-#define RELAY_CONNECTED 1
-#define RELAY_DISCONNECTED 0
+#define RELAY_CONNECTED         1
+#define RELAY_DISCONNECTED      0
 
-#define LOG_RELAY_CONNECTED 1
-#define LOG_RELAY_DISCONNECTED 2
-#define LOG_LOGIN_REJECTED 3
-#define LOG_NOTHING 4
+#define LOG_RELAY_CONNECTED     1
+#define LOG_RELAY_DISCONNECTED  2
+#define LOG_LOGIN_REJECTED      3
+#define LOG_NOTHING             4
 
 // debug
 #define DEBUG_JKW
 
 // settings
-#define DB_UPDATE_TIME 10*60 // seconds between two auto updates from the server
-#define MIN_UPDATE_TIME 30 // seconds between two database request, to avoid flooding, remember this has to be smaller then db_update_time
-#define RED_LED_DELAY 1000 // ms
-#define GREEN_LED_DELAY 1000 // ms
-#define DB_LED_DELAY 1000 // ms
-#define SEC_WAIT_BOOTUP 5 // 5sec of led toggling to show that we are starting
+#define DB_UPDATE_TIME          10*60 // seconds between two auto updates from the server
+#define MIN_UPDATE_TIME         30 // seconds between two database request, to avoid flooding, remember this has to be smaller then db_update_time
+#define RED_LED_DELAY           1000 // ms
+#define GREEN_LED_DELAY         1000 // ms
+#define DB_LED_DELAY            1000 // ms
+#define SEC_WAIT_BOOTUP         5 // 5sec of led toggling to show that we are starting
 
 // network
 IPAddress HOSTNAME(192,168,188,23);
@@ -71,6 +71,7 @@ uint8_t tagInRange=0;
 uint32_t last_key_update=0;
 uint32_t last_server_request=0;
 uint32_t relay_open_timestamp=0;
+uint32_t last_tag_read=0;
 
 LED db_led(DB_LED_AND_UPDATE_PIN,DB_LED_DELAY,1,1); // weak + inverse
 LED red_led(RED_LED_PIN,RED_LED_DELAY,0,0);
@@ -103,9 +104,9 @@ void setup() {
     Serial.begin(115200);
     Serial1.begin(9600);
 
-    red_led.on();
 
     // start sequence, to remind user to set mode
+    red_led.on();
     for(uint i=0;i<SEC_WAIT_BOOTUP;i++){
         Serial.print(i+1);
         Serial.print("/");
@@ -254,7 +255,8 @@ void loop() {
     
     
     // card moved away
-    if((digitalRead(TAG_IN_RANGE_INPUT)==0 || Serial1.available()) && currentTag!=-1){ // if serial1 has avaioable chars, it means that TAG IN RANGE had to be low at some point, its just a new card there now!
+    // if serial1 has avaioable chars, it means that TAG IN RANGE had to be low at some point, its just a new card there now!
+    if((digitalRead(TAG_IN_RANGE_INPUT)==0 || Serial1.available()) && currentTag!=-1){ 
         // open the relay as soon as the tag is gone
         if(current_relay_state==RELAY_CONNECTED){
             uint32_t open_time_sec=relay(RELAY_DISCONNECTED);
@@ -351,13 +353,33 @@ uint32_t relay(int8_t input){
 bool tag_found(uint8_t *buf,uint32_t *tag){
     uint8_t temp;
     
+    Serial.print("->");
+    Serial.print(Serial1.available());
+    Serial.println("<-");
+    
     while(Serial1.available()){
+        
+        // if we haven't received input for a long time, make sure that we writing to pos 1
+        if(abs(millis()-last_tag_read)>100){
+            currentTagIndex=0;
+        }
+        last_tag_read=millis();
+        
+        // read and store
         temp=Serial1.read();
         buf[currentTagIndex]=temp;
         currentTagIndex=(currentTagIndex+1)%TAGSTRINGSIZE;
         
         if(currentTagIndex==0){
-            Serial1.flush();
+            //Serial1.flush(); // flush it, as we just want to read this tag
+            // according to the ref of particle, flush is not implemented
+            // and there understanding is different after all
+            // will manual flushing the input
+            while(Serial1.available()){
+                Serial1.read();
+            }
+            
+            Serial.println("flushing");
             return validate_tag(buf,tag);
         };
     }
@@ -384,7 +406,7 @@ bool validate_tag(uint8_t *buf,uint32_t *tag){
     return false;
 }
 
-
+// if we are running offline
 bool read_EEPROM(){
     #ifdef DEBUG_JKW
     Serial.println("-- This is EEPROM read --");
@@ -607,6 +629,7 @@ void create_report(uint8_t event,uint32_t badge,uint32_t extrainfo){
 }
 
 
+// set the LED pattern
 void set_connected(int status){
     set_connected(status,false);
 };
