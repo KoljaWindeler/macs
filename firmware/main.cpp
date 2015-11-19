@@ -72,7 +72,7 @@ void setup() {
 
     // start sequence, to remind user to set mode
     red_led.on();
-    for(uint i=0;i<SEC_WAIT_BOOTUP;i++){
+    for(uint8_t i=0;i<SEC_WAIT_BOOTUP;i++){
         Serial.print(i+1);
         Serial.print("/");
         Serial.println(5);
@@ -447,7 +447,7 @@ bool read_EEPROM(){
     
     if(num_keys_check==num_keys+1){
         keys_available=num_keys;
-        for(uint8_t i=0;i<num_keys;i++){
+        for(uint16_t i=0;i<num_keys;i++){
             temp=EEPROM.read(i*4+0);
             keys[i]=temp<<24;
             temp=EEPROM.read(i*4+1);
@@ -605,7 +605,7 @@ bool update_ids(bool forced){
     Serial.print(get_my_id());
     Serial.print("):");
     Serial.println(keys_available);
-    for(uint8_t i=0;i<keys_available;i++){
+    for(uint16_t i=0;i<keys_available;i++){
         Serial.print("Valid Database Key Nr ");
         Serial.print(i+1);
         Serial.print(": ");
