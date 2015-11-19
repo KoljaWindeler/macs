@@ -20,7 +20,7 @@ if(isset($_GET["mach_nr"])){
 			$csv.=intval($row["badge_id"],10).",";
 		};
 
-		echo $csv;
+		//echo $csv;
 
 
 		// update last seen
@@ -33,6 +33,7 @@ if(isset($_GET["mach_nr"])){
 		$stmt->bindParam(":id",$_GET["mach_nr"],PDO::PARAM_INT);
 		$stmt->execute();
 
+		$updated=0;
 	        foreach($stmt as $row){
 			if($row["COUNT(*)"]>0){
 				$stmt2 = $db->prepare("INSERT INTO `macs`.`log` (`id`, `timestamp`, `user_id`, `machine_id`, `event`) VALUES ('', '".time()."', '0', (SELECT `id` FROM `mach` WHERE mach_nr=:id), 'Station updated')");
@@ -43,9 +44,23 @@ if(isset($_GET["mach_nr"])){
 				$stmt3->bindParam(":id",$_GET["mach_nr"],PDO::PARAM_INT);
 				$stmt3->execute();
 
+				echo $csv;
+				$updated=1;
 				break;
 			};
 		};
+
+		if(isset($_GET['forced'])){
+			if($_GET['forced']=='1'){
+				echo $csv;
+				$updated=1;
+			}
+		}
+
+		if($updated==0){
+			echo "nu";
+		};
+
 	} else {
 		// unknown machine
 		if(!is_numeric($_GET["mach_nr"])){
