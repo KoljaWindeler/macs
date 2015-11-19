@@ -122,8 +122,7 @@ int RestClient::request(const char* method, const char* path,
   if(client.connect(host, port)){
     
     //delay(200);
-    Serial.flush();
-    Serial.println("\r\nconnected");
+    //Serial.println("\r\nconnected");
     //delay(200);
   
     HTTP_DEBUG_PRINT("HTTP: connected\n");
@@ -164,7 +163,9 @@ int RestClient::request(const char* method, const char* path,
     //delay(200);
 
     HTTP_DEBUG_PRINT("HTTP: call readResponse\n");
+    //Serial.println("\r\n read response");
     int statusCode = readResponse(response);
+    //Serial.println("\r\n done");
     HTTP_DEBUG_PRINT("HTTP: return readResponse\n");
 
     //cleanup
