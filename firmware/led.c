@@ -1,9 +1,7 @@
 #include "stdint.h"
 #include "led.h"
 #include "application.h"
-
-//#define DEBUG_JKW
-
+#include "config.h"
 
 LED::LED(uint8_t pin,uint16_t delay, uint8_t weak, uint8_t inverse){
     m_pin=pin;
@@ -26,7 +24,7 @@ void LED::clear(){
 }
 
 void LED::on_delayed(){
-    #ifdef DEBUG_JKW
+    #ifdef DEBUG_JKW_LED
     Serial.print("Swtich led ");
     Serial.print(m_pin);
     Serial.println(" on delayed");
@@ -53,7 +51,7 @@ void LED::toggle(){
 
 // standard "on()" should save the old mode of the LED, so call with with remember
 void LED::on(){
-    #ifdef DEBUG_JKW
+    #ifdef DEBUG_JKW_LED
     Serial.print("Swtich led ");
     Serial.print(m_pin);
     Serial.println(" on");
@@ -91,7 +89,7 @@ void LED::hw_on(){
 }
 
 void LED::off(){
-    #ifdef DEBUG_JKW
+    #ifdef DEBUG_JKW_LED
     Serial.print("Swtich led ");
     Serial.print(m_pin);
     Serial.println(" to off");
@@ -141,7 +139,7 @@ void LED::check(){
 
 
 void LED::blink(){
-    #ifdef DEBUG_JKW
+    #ifdef DEBUG_JKW_LED
     Serial.print("Swtich led ");
     Serial.print(m_pin);
     Serial.println(" to blink");
@@ -158,7 +156,7 @@ void LED::blink(){
 }
 
 void LED::resume(){
-    #ifdef DEBUG_JKW
+    #ifdef DEBUG_JKW_LED
     Serial.print("resume led ");
     Serial.println(m_pin);
     #endif
@@ -170,7 +168,7 @@ void LED::resume(){
     m_mode[MAX_MODE_HIST-1]=OFF;
     
     
-    #ifdef DEBUG_JKW
+    #ifdef DEBUG_JKW_LED
     Serial.print("to state ");
     Serial.println(m_mode[0]);
     #endif
