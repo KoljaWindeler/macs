@@ -12,9 +12,6 @@
 */
 
 // This #include statement was automatically added by the Particle IDE.
-#include "wifi_login.h"
-#include "rest_client.h"
-#include "led.h"
 #include "application.h"
 #include "stdint.h"
 #include "config.h"
@@ -98,48 +95,12 @@ void setup() {
         red_led.on();
         green_led.on();
         
-        set_macs_login();
-        WiFi.connect();
-        
-        uint8_t i=0;
-        uint8_t j=0;
-        
-        #ifdef DEBUG_JKW_MAIN
-        Serial.println("- Wifi on -");
-        #endif 
-        
-        while(i<20){
-            if(j!=millis()/1000){
-                j=millis()/1000;
-                i++;
-                
-                #ifdef DEBUG_JKW_MAIN
-                Serial.print("try ");
-                Serial.print(i);
-                Serial.println("/20 wifi");
-                #endif
-                
-                if(WiFi.ready()){
-                    
-                    #ifdef DEBUG_JKW_MAIN
-                    Serial.println("connected!");
-                    #endif
-                    
-                    break;
-                }
-            }
-            delay(200);
-        }
-        
-        #ifdef DEBUG_JKW_MAIN
-        Serial.println("- Updating -");
-        #endif
-        
-        if(!update_ids(true)){ // true = force update
+        set_connected(0); // init as not connected
+        if(update_ids(true)){ // true = force update, update_ids will initiate the connect
+            set_connected(1);
+        } else {
             set_connected(0,true); // force LED update for not connected
             read_EEPROM();
-        } else {
-            set_connected(1);
         }
     
     } else {
@@ -151,62 +112,71 @@ void setup() {
         Serial.println("- Cloud -");
         #endif
         
-        set_update_login();
-        Particle.connect();
-        uint8_t i=0;
         
-        // empty buffer
-        while(Serial.available()){
-            Serial.read();
-        }
-        
-        // stay in update mode forever
         while(1){
-            if(i!=millis()/1000){
-                
-                #ifdef DEBUG_JKW_MAIN
-                Serial.print(i);
-                Serial.print(": ");
-                #endif
-                
-                if(Particle.connected()){
-                    // as soon as we are connected, swtich to blink mode to make it visible
-                    if(!connected){
-                        red_led.blink();
-                        green_led.blink();
-                        db_led.blink();
-                        connected=1;
-                    } else {
-                        Particle.process();
-                    }
-                    
-                    // check incomming data
-                    parse_wifi();
-                    
-                    // keep blinking
-                    red_led.check();
-                    green_led.check();
-                    db_led.check();
-                    
-                    #ifdef DEBUG_JKW_MAIN
-                    Serial.println("Photon connected");
-                    #endif
-                    
-                } else {
-                    
-                    #ifdef DEBUG_JKW_MAIN
-                    Serial.println("Photon NOT connected");
-                    #endif
-                    
-                    // constant on == not yet connected
-                    red_led.on();
-                    green_led.on();
-                    db_led.on();
+            // set_update_login will return true, if we've read a valid config from 
+            // the EEPROM memory AND that WIFI was in range AND the module has saved the login
+            if(set_update_login(&red_led,&green_led)){
+                Serial.println("set update login done");
+                // particle.connect() calls WiFi.connect()
+                Particle.connect();
+                uint8_t i=0;
+
+                while(!WiFi.ready()){
+                    Serial.print(".");
+                    Particle.connect();
                 }
-                i=millis()/1000;
-            } // i!=millis()/1000
-            delay(200); // don't go to high as blink will look odd
-        }
+
+                // stay in update mode forever
+                while(WiFi.ready()){
+                    if(i!=millis()/1000){
+                        
+                        #ifdef DEBUG_JKW_MAIN
+                        Serial.print(i);
+                        Serial.print(": ");
+                        #endif
+                        
+                        if(Particle.connected()){
+                            // as soon as we are connected, swtich to blink mode to make it visible
+                            if(!connected){
+                                red_led.blink();
+                                green_led.blink();
+                                db_led.blink();
+                                connected=1;
+                            } else {
+                                Particle.process();
+                            }
+                            
+                            // check incomming data
+                            parse_wifi();
+                            
+                            // keep blinking
+                            red_led.check();
+                            green_led.check();
+                            db_led.check();
+                            
+                            #ifdef DEBUG_JKW_MAIN
+                            Serial.println("Photon connected");
+                            #endif
+                            
+                        } else {
+                            
+                            #ifdef DEBUG_JKW_MAIN
+                            Serial.println("Photon NOT connected");
+                            #endif
+                            
+                            // constant on == not yet connected
+                            red_led.on();
+                            green_led.on();
+                            db_led.on();
+                        }
+                        i=millis()/1000;
+                    } // i!=millis()/1000
+                    delay(200); // don't go to high as blink will look odd
+                } // end while(WiFi.ready())
+                // reaching this point tells us that we've set the wifi login, tried to connect but lost the connection, as the wifi is not (longer) ready
+            } // if(set_update_login())
+        } // end while(1)
     }
 }
 
@@ -226,7 +196,14 @@ void loop() {
                 tries=0;
                 // takes long
                 create_report(LOG_RELAY_CONNECTED,currentTag,0);
-                
+                // 1. assuming that we are NOT connected, we reached this point and the create_report has success to reconnet than it will call set_connected()
+                // this will turn red off (which is fine (was blinking = not connected)) and green to blink (ok), so we have to override it
+                // 2. assuming that we are NOT connected, we reached this point and the create_report has NO success to reconnet than it will not call set_connected()
+                // the red will keep blinking (ok) but we still want to show that this card was good, turn green on
+                // 3. assuming that we are connected, we reached this point then create_report will not try to reconnect and the report is send just fine
+                // the red will be off anywa (ok), we want to show that this card was good, turn green on
+                // 4. assuming that we are connected, we reached this point then create_report will not try to reconnect, but the report failed, create_report will set us to not conneted
+                // the red will be blinkin (ok), we want to show that this card was good, turn green on
                 green_led.on();
             } else {
                 // if we have a card that is not known to be valid we should maybe check our database
@@ -486,6 +463,13 @@ bool update_ids(bool forced){
         
         return false;
     }
+    
+    if(connected==0){
+        if(!set_macs_login()){
+            return false;
+        }
+    }
+    
     last_key_update=millis()/1000;
     db_led.on(); // turn the led on
     
@@ -622,6 +606,14 @@ bool update_ids(bool forced){
 // create a log entry on the server for the action performed
 void create_report(uint8_t event,uint32_t badge,uint32_t extrainfo){
     
+    if(connected==0){
+        if(set_macs_login()){
+            set_connected(1); // this could potentially destroy our LED pattern? TODO
+        } else {
+            return; // pointless to go on
+        }
+    }
+    
     db_led.on(); // turn the led on
     String request_path;
     if(event==LOG_RELAY_CONNECTED){
@@ -709,4 +701,5 @@ uint8_t get_my_id(){
     }
     return id;
 }
+
 
