@@ -1,10 +1,22 @@
 
 /* LED Patter
+* === STARTUP ===
 * red,green,red,green  -> i give you 10 sec to connect to me, before I start
 * red on, green on -> I'm trying to connect to my server
-* UPDATE MODE
+*
+* === UPDATE MODE ===
+* green flashes 3 times (10Hz) -> I've found valid WiFi config 1 in EEPROM and now I'm scannning for it! 
+* green flashes 5 times (10Hz) -> I've found WiFi config 1 in scan results and try to conenct now! 
+* red flashes 3 times (10Hz) -> I've found valid WiFi config 2 in EEPROM and now I'm scannning for it! 
+* red flashes 5 times (10Hz) -> I've found WiFi config 2 in scan results and try to conenct now! 
+* red and green simulatnious, 2 fast blinks (10Hz) -> connected to wifi!
+* red,green,red,greed fast (10sec, 20Hz) -> Waiting for the Wifi to save credentials AND give you time to add new credentials via serial
 * red and green blink simultainous -> I'm ready for an update
-* MACS MODE (status can be combined)
+* 
+* === MACS MODE (status can be combined) ===
+* red and green simulatnious, flashes 3 times (10Hz) -> I've found valid WiFi config in EEPROM and now I'm scannning for it! 
+* red and green simulatnious, flashes 5 times (10Hz) -> I've found WiFi config in scan results and try to conenct now! 
+* red and green simulatnious, 2 fast flashes (10Hz)  -> connected to wifi!
 * red blinking -> no connection to the MACS Server
 * red solid -> card rejected
 * green blinking -> connected to the MACS Server
@@ -44,8 +56,9 @@ SYSTEM_MODE(MANUAL);// do not connect on your own
 // http server
 RestClient client = RestClient(HOSTNAME);
 
-
+//////////////////////////////// SETUP ////////////////////////////////
 void setup() {
+    // set adress pins
     for(uint8_t i=10; i<=MAX_JUMPER_PIN+10; i++){   // A0..7 is 10..17, used to read my ID
        pinMode(i,INPUT_PULLUP);
     }
@@ -88,6 +101,7 @@ void setup() {
     // read mode to starting with
     if(digitalRead(DB_LED_AND_UPDATE_PIN)){
         
+        // ############ MACS MODUS ############ // 
         #ifdef DEBUG_JKW_MAIN
         Serial.println("- MACS -");
         #endif
@@ -102,8 +116,11 @@ void setup() {
             set_connected(0,true); // force LED update for not connected
             read_EEPROM();
         }
-    
+        // ############ MACS MODUS ############ // 
+        
     } else {
+        
+        // ############ UPDATE MODUS ############ // 
         red_led.on();
         green_led.on();
         db_led.on();
@@ -112,18 +129,20 @@ void setup() {
         Serial.println("- Cloud -");
         #endif
         
-        
+        // satrt loop that will set wifi data and connect to cloud,
+        // and if anything fails start again, until there is an update
         while(1){
             // set_update_login will return true, if we've read a valid config from 
             // the EEPROM memory AND that WIFI was in range AND the module has saved the login
-            if(set_update_login(&red_led,&green_led)){
+            if(set_update_login(&green_led,&red_led)){
                 Serial.println("set update login done");
-                // particle.connect() calls WiFi.connect()
                 Particle.connect();
                 uint8_t i=0;
 
+                // backup, if connect didn't work, repeat it
                 while(!WiFi.ready()){
                     Serial.print(".");
+                    WiFi.connect();
                     Particle.connect();
                 }
 
@@ -147,7 +166,7 @@ void setup() {
                                 Particle.process();
                             }
                             
-                            // check incomming data
+                            // check incomming data, unlikely here, because at this point we are already connected to an update wifi
                             parse_wifi();
                             
                             // keep blinking
@@ -177,10 +196,12 @@ void setup() {
                 // reaching this point tells us that we've set the wifi login, tried to connect but lost the connection, as the wifi is not (longer) ready
             } // if(set_update_login())
         } // end while(1)
+        // ############ UPDATE MODUS ############ // 
     }
 }
+//////////////////////////////// SETUP ////////////////////////////////
 
-
+//////////////////////////////// MAIN LOOP ////////////////////////////////
 // woop woop main loop
 void loop() {
     // check if we found a tag
@@ -268,9 +289,10 @@ void loop() {
     red_led.check();
     green_led.check();
 }
+//////////////////////////////// MAIN LOOP ////////////////////////////////
 
 
-
+//////////////////////////////// ACCESS TEST ////////////////////////////////
 // callen from main loop as soon as a tag has been found to test if it matches one of the saved keys
 bool access_test(uint32_t tag){
     #ifdef DEBUG_JKW_MAIN
@@ -311,7 +333,9 @@ bool access_test(uint32_t tag){
     
     return false;
 }
+//////////////////////////////// ACCESS TEST ////////////////////////////////
 
+//////////////////////////////// DRIVE THE RELAY ////////////////////////////////
 // hardware controll, writing to the pin and log times
 uint32_t relay(int8_t input){
     if(input==1){
@@ -334,8 +358,9 @@ uint32_t relay(int8_t input){
         return ((millis()/1000) - relay_open_timestamp);
     }
 }
+//////////////////////////////// DRIVE THE RELAY ////////////////////////////////
 
-
+//////////////////////////////// SCAN FOR TAG ON SERIAL ////////////////////////////////
 // returns true if tag found, does the UART handling
 bool tag_found(uint8_t *buf,uint32_t *tag){
     uint8_t temp;
@@ -367,8 +392,9 @@ bool tag_found(uint8_t *buf,uint32_t *tag){
     }
     return false;
 }
+//////////////////////////////// SCAN FOR TAG ON SERIAL ////////////////////////////////
 
-
+//////////////////////////////// VERIFY CHECKSUM FOR TAG ////////////////////////////////
 // just check if the data are corrumpeted or equal the checksum 
 // and convert them to the correct oriented unsigned long
 bool validate_tag(uint8_t *buf,uint32_t *tag){
@@ -387,7 +413,9 @@ bool validate_tag(uint8_t *buf,uint32_t *tag){
 
     return false;
 }
+//////////////////////////////// VERIFY CHECKSUM FOR TAG ////////////////////////////////
 
+//////////////////////////////// READ ID's FROM EEPROM ////////////////////////////////
 // if we are running offline
 bool read_EEPROM(){
     
@@ -448,7 +476,9 @@ bool read_EEPROM(){
     Serial.println("-- End of EEPROM read --");
     #endif
 }
+//////////////////////////////// READ ID's FROM EEPROM ////////////////////////////////
 
+//////////////////////////////// UPDATE ID's ////////////////////////////////
 // sends a request to the amazon server, this server should be later changed to 
 // be the local Raspberry pi. It will call the get_my_id() function
 // return true if http request was ok
@@ -464,8 +494,9 @@ bool update_ids(bool forced){
         return false;
     }
     
-    if(connected==0){
-        if(!set_macs_login()){
+    if(!WiFi.ready()){
+        if(!set_macs_login(&green_led,&red_led)){
+            set_connected(0);
             return false;
         }
     }
@@ -601,15 +632,17 @@ bool update_ids(bool forced){
     db_led.off(); // turn the led off
     return true;
 }
+//////////////////////////////// UPDATE ID's ////////////////////////////////
 
-
+//////////////////////////////// CREATE REPORT ////////////////////////////////
 // create a log entry on the server for the action performed
 void create_report(uint8_t event,uint32_t badge,uint32_t extrainfo){
     
-    if(connected==0){
-        if(set_macs_login()){
+    if(!WiFi.ready()){
+        if(set_macs_login(&green_led,&red_led)){
             set_connected(1); // this could potentially destroy our LED pattern? TODO
         } else {
+            set_connected(0);
             return; // pointless to go on
         }
     }
@@ -657,8 +690,9 @@ void create_report(uint8_t event,uint32_t badge,uint32_t extrainfo){
     
     db_led.off(); // turn the led off
 }
+//////////////////////////////// CREATE REPORT ////////////////////////////////
 
-
+//////////////////////////////// SET CONNECTED ////////////////////////////////
 // set the LED pattern
 void set_connected(int status){
     set_connected(status,false);
@@ -675,7 +709,9 @@ void set_connected(int status, bool force){
         red_led.blink();
     }
 }
+//////////////////////////////// SET CONNECTED ////////////////////////////////
 
+//////////////////////////////// GET MY ID ////////////////////////////////
 // shall later on read the device jumper and return that number
 // will only do the interation with the pins once for performance
 uint8_t get_my_id(){
@@ -701,5 +737,6 @@ uint8_t get_my_id(){
     }
     return id;
 }
+//////////////////////////////// GET MY ID ////////////////////////////////
 
 
