@@ -78,49 +78,55 @@ bool set_update_login(LED *green, LED *red){
     WiFi.on();
     WiFi.clearCredentials();
     
-    String SSID[2];
-    String pw[2];
-    int mode[2];
-    
+    String SSID;
+    String pw;
+    int mode;
+    LED *visual_indicator[2]={green,red};
+    red->off();
+    green->off();
     
     // Now use the class
     FindSSID ssidFinder;
     char SSID_char[20];
     bool try_backup=true;
     
-    Serial.println("get  wifi");
-    delay(300);
-    if(get_wifi_config(WIFI_UPDATE_1,&SSID[0],&pw[0],&mode[0])){
-        Serial.println("scan");
-        delay(300);
-        SSID[0].toCharArray(SSID_char,20);
-        if(ssidFinder.check_SSID_in_range(SSID_char)){
-            try_backup=false;
-            Serial.println("setting crededentials");
-            Serial.println(SSID[0]);
-            WiFi.setCredentials(SSID[0], pw[0], mode[0]);
-        };
-    };
-    
-
-    if(try_backup){
-        if(get_wifi_config(WIFI_UPDATE_2,&SSID[1],&pw[1],&mode[1])){
-            SSID[1].toCharArray(SSID_char,20);
+    //Serial.println("get  wifi");
+    //delay(300);
+    for(uint8_t config=0; config < 2; config++){
+        if(get_wifi_config(WIFI_UPDATE_1+config,&SSID,&pw,&mode)){
+            //Serial.println("scan");
+            //delay(300);
+            // flash 3x green to show that I've found a valid WLAN1 config in EEPROM
+            for(int i=0;i<2*3; i++){
+                visual_indicator[config]->toggle();
+                delay(100);
+            }
+            visual_indicator[config]->off();
+           
+            SSID.toCharArray(SSID_char,20);
             if(ssidFinder.check_SSID_in_range(SSID_char)){
+                
+                // flash 5x green to show that I've found the WLAN1 and try to connect now
+                for(int i=0;i<2*5; i++){
+                    visual_indicator[config]->toggle();
+                    delay(100);
+                }
+                visual_indicator[config]->off();
+                
+                //try_backup=false;
                 //Serial.println("setting crededentials");
-                //Serial.println(SSID[1]);
-                WiFi.setCredentials(SSID[1], pw[1], mode[1]);
+                //Serial.println(SSID[0]);
+                WiFi.setCredentials(SSID, pw, mode);
+                break;
             };
         };
     };
-    
 
-
-    for(int i=0; i<10 && !WiFi.hasCredentials(); i++){
+    for(int i=0; i<200 && !WiFi.hasCredentials(); i++){
         // take new info
         parse_wifi();
         // set info
-        delay(100);
+        delay(50);
         if(i%2==0){
             green->off();
             red->on();
@@ -133,7 +139,15 @@ bool set_update_login(LED *green, LED *red){
     if(WiFi.hasCredentials()){
         WiFi.connect();
         //Serial.println("return true");
-        delay(1000);
+        green->off();
+        red->off();
+        for(int i=0;i<2*2; i++){
+            green->toggle();
+            red->toggle();
+            delay(100);
+        }
+        green->off();
+        red->off();
         return true;
     }
     
@@ -143,33 +157,70 @@ bool set_update_login(LED *green, LED *red){
 }
 
 // set the config for the regular operational mode
-bool set_macs_login(){
+bool set_macs_login(LED *green, LED *red){
     WiFi.on();
     WiFi.clearCredentials();
     
     String SSID;
     String pw;
     int mode;
+    bool loop=true;
+    green->off();
+    red->off();
     
+    while(loop){
+        loop=false;
+        
+        if(get_wifi_config(WIFI_MACS,&SSID,&pw,&mode)){
+            // show that we found a valid config
+            for(int i=0;i<2*3; i++){
+                green->toggle();
+                red->toggle();
+                delay(100);
+            }
+            green->off();
+            red->off();
+            
+            FindSSID ssidFinder;
+            char SSID_char[20];
+            SSID.toCharArray(SSID_char,20);
+            
+            if(ssidFinder.check_SSID_in_range(SSID_char)){
+                // show that we found that wifi, and try to connect
+                for(int i=0;i<2*5; i++){
+                    green->toggle();
+                    red->toggle();
+                    delay(100);
+                }
+                green->off();
+                red->off();
+                
+                WiFi.setCredentials(SSID, pw, mode);
+            }
+        }
+        
     
-    // Now use the class
-    FindSSID ssidFinder;
-    char SSID_char[20];
-    SSID.toCharArray(SSID_char,20);
-    if(get_wifi_config(WIFI_MACS,&SSID,&pw,&mode) & ssidFinder.check_SSID_in_range(SSID_char)){
-        WiFi.setCredentials(SSID, pw, mode);
-    }
-    
-
-    for(int i=0; i<10 && !WiFi.hasCredentials(); i++){
-        // take new info
-        parse_wifi();
-        // set info
-        delay(1000);
+        for(int i=0; i<10 && !WiFi.hasCredentials(); i++){
+            // take new info
+            if(parse_wifi()){
+                loop=true;
+            }
+            // set info
+            delay(1000);
+        }
     }
     
     if(WiFi.hasCredentials()){
         WiFi.connect();
+        green->off();
+        red->off();
+        for(int i=0;i<2*2; i++){
+            green->toggle();
+            red->toggle();
+            delay(100);
+        }
+        green->off();
+        red->off();
         return true;
     }
     
