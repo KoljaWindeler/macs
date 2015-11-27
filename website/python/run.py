@@ -3,17 +3,18 @@ import os, sys
 import glob, time
 import serial
 
-log_f=""
 
-def log(inp):
-	global log_f
+def log(inp,reset=0):
+	if(reset==1):
+		log_f=open("/tmp/macs_log.txt", "w")
+	else:
+		log_f=open("/tmp/macs_log.txt", "a")
 	out="["+time.strftime("%H:%M:%S")+"] "+str(inp)
 	log_f.write(out+"\r\n")
+	log_f.close()	
 	print(out)
 
-
-try:
-	log_f=open("log.txt", "w")
+try:	
 	log("Reading WiFi config file")
 except:
 	exit("could not start logging")
@@ -118,5 +119,5 @@ for port in result:
 			log("Please try again")
 	
 log("Thanks for using MACS")
-log_f.close()
+
 
