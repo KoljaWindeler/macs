@@ -5,10 +5,11 @@ if(isset($_GET['tz'])){
 } elseif (!isset($_SESSION['tz'])){
 	$params = array_merge($_GET, array("tz" => "REPLACE"));
 	$new_query_string = http_build_query($params);
-	
+
 	$tz='var now = new Date(); var url="'.$_SERVER['REQUEST_URI'].'?'.$new_query_string.'"; window.location.replace(url.replace("REPLACE",now.getTimezoneOffset()));';
 };
 
+// get new background at start of session
 if(!isset($_SESSION["bg"]) || $_SESSION["bg"]==""){
 	$_SESSION["bg"]=rand(1,3);
 };
@@ -62,7 +63,7 @@ $header='<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="tex
 			var passhash = CryptoJS.MD5(pw);
 			$("#macs_pw_md5").val(passhash.toString(CryptoJS.enc.Hex));
 			//event.preventDefault();
-			
+
 		});
 
 		$(".hl").delegate(\'td\',\'mouseover mouseleave\', function(e) {
