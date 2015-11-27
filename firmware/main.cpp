@@ -288,6 +288,7 @@ void loop() {
     db_led.check();
     red_led.check();
     green_led.check();
+    parse_wifi();
 }
 //////////////////////////////// MAIN LOOP ////////////////////////////////
 
