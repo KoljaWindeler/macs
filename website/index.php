@@ -518,7 +518,14 @@ $o.='<tr><td>';
 $o.=$o_usage;
 //////////////// LOG /////////////////
 
-$o.='</td></tr></table>';
+//////////////// setup /////////////////
+$o.='</td></tr><tr class="spacer"><td>&nbsp;</td></tr><tr class="header click"><td>+ Setup<a name="setup"></a></td></tr><tr><td>';
+$o.='<tr><td>';
+
+$o.='<iframe width="100%" height="400" src="php_module/module_setup.php" border="0"></iframe>';
+//////////////// setup /////////////////
+
+$o.='</td></tr></table><br><br><br>';
 
 
 if(!empty($info)){
