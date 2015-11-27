@@ -33,6 +33,7 @@ class LED {
         void hw_off();
         void blink();
         void resume();
+        void clear();
         void toggle();
         uint8_t getState();
 };
