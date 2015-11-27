@@ -1,4 +1,14 @@
 // hardware
+#ifndef AKTORS_H_
+#define AKTORS_H_
+
+#include "application.h"
+#include "stdint.h"
+#include "led.h"
+#include "wifi_login.h"
+#include "rest_client.h"
+
+
 #define MAX_JUMPER_PIN 6 // 2^(6+1)-1=127
 
 #define DB_LED_AND_UPDATE_PIN   D0
@@ -73,3 +83,6 @@
 
 // network
 #define HOSTPORT 80
+
+#endif
+
