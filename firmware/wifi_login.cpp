@@ -7,17 +7,21 @@ class FindSSID
 {
     char *SSID_to_search;
     bool found;
+    LED *m_green;
+    LED *m_red;
     // This is the callback passed to WiFi.scan()
     // It makes the call on the `self` instance - to go from a static
     // member function to an instance member function.
-    static void handle_ap(WiFiAccessPoint* wap, FindSSID* self)
-    {
+    static void handle_ap(WiFiAccessPoint* wap, FindSSID* self){
         self->next(*wap);
     }
 
     // determine if this AP is stronger than the strongest seen so far
     void next(WiFiAccessPoint& ap)
     {
+        m_green->toggle();
+        m_red->toggle();
+        
         #ifdef DEBUG_JKW_WIFI
         //Serial.print("found ");
         //Serial.println(ap.ssid);
@@ -38,7 +42,7 @@ public:
     /**
      * Scan WiFi Access Points and retrieve the strongest one.
      */
-    bool check_SSID_in_range(char *SSID)
+    bool check_SSID_in_range(char *SSID, LED *green, LED *red)
     {
         #ifdef DEBUG_JKW_WIFI
         //Serial.print("check SSID for ");
@@ -47,6 +51,8 @@ public:
         // initialize data
         found = false;
         SSID_to_search = SSID;
+        m_green = green;
+        m_red = red;
         
         // avoid scanning for invaid data
         if(strlen(SSID)==0){
@@ -74,158 +80,145 @@ public:
 // 5. if we don't set any credentials: give the user 10 sec to add some wifis via serial
 // 6. assuming we've set credentials, we'll return true, otherwise false and come back in a second
 bool set_update_login(LED *green, LED *red){
-    WiFi.off();
-    WiFi.on();
-    WiFi.clearCredentials();
-    
+	return set_login(green, red, UPDATE);
+}
+
+bool set_macs_login(LED *green, LED *red){
+	return set_login(green, red, !UPDATE);
+}
+	
+bool set_login(LED *green, LED *red, uint8_t mode){	
+	//	... ok ... complicated
+	//
+	//	if we have a blank device this will happen:
+	//	1. Both LEDs will toggle for 10sec (saving WiFi credentials (not applicable here) or waiting for input)
+	//
+	//	if we have a config that is OUT of reach:
+	//	1. (MACS=Both LEDs)/(UPDATE1=green LED)/(UPDATE2=red LED) will flash 3x (MACS=simultaneously) to show that the config has been read
+	//	2. Green off, red on will show the start of the WiFi scanning
+	//	3. per WiFi that has been found the green and red will toggle, just to show activity
+	// 	4. Both LEDs are switched off
+	//	5. Both LEDs will toggle for 10sec (saving WiFi credentials (not applicable here) or waiting for input) 20Hz
+	//
+	//	if we have a config that is IN reach:
+	//	1. (MACS=Both LEDs)/(UPDATE1=green LED)/(UPDATE2=red LED) will flash 3x (MACS=simultaneously) to show that the config has been read
+	//	2. Green off, red on will show the start of the WiFi scanning
+	//	3. per WiFi that has been found the green and red will toggle, just to show activity
+	// 	4. Both LEDs are switched off
+	//	5. (MACS=Both LEDs)/(UPDATE1=green LED)/(UPDATE2=red LED) will toggle 5x (WiFi found) 10Hz
+	//	6. Both LEDs will toggle for 10sec or until WiFi data are saved (saving WiFi credentials or waiting for input) 20Hz
+	//	7. (MACS=Both LEDs)/(UPDATE1=green LED)/(UPDATE2=red LED) will toggle 2x (WiFi connected) 10Hz
+	//
+	
+	String pw;
     String SSID;
-    String pw;
-    int mode;
-    LED *visual_indicator[2]={green,red};
-    red->off();
-    green->off();
-    
-    // Now use the class
-    FindSSID ssidFinder;
+    int type;
     char SSID_char[20];
     bool try_backup=true;
+	uint8_t wifi_offset;
+	uint8_t max_loop;
+    LED *visual_indicator[2]={green,red};
+    FindSSID ssidFinder;
+    uint8_t config;
+	
+	WiFi.off();
+    WiFi.on();
+    WiFi.clearCredentials();
+	
+	// start with both LED's off
+	visual_indicator[0]->off();
+	visual_indicator[1]->off();
     
-    //Serial.println("get  wifi");
-    //delay(300);
-    for(uint8_t config=0; config < 2; config++){
-        if(get_wifi_config(WIFI_UPDATE_1+config,&SSID,&pw,&mode)){
-            //Serial.println("scan");
-            //delay(300);
-            // flash 3x green to show that I've found a valid WLAN1 config in EEPROM
+	// prepare loop
+	if(mode==UPDATE){ // in update mode we'll try both configs, WIFI_UPDATE_1 and WIFI_UPDATE_2
+		max_loop=2;
+		wifi_offset=WIFI_UPDATE_1;
+	} else {	// in macs mode we'll just try WIFI_MACS
+		max_loop=1;
+		wifi_offset=WIFI_MACS;
+	}
+	
+    for(config=0; config < max_loop; config++){
+        if(get_wifi_config(wifi_offset+config,&SSID,&pw,&type)){
+            // flash 3x green/red to show that I've found a valid WLAN config in EEPROM
             for(int i=0;i<2*3; i++){
-                visual_indicator[config]->toggle();
+				if(mode!=UPDATE){	// MACS mode, toggle both
+					visual_indicator[0]->toggle();
+					visual_indicator[1]->toggle();
+				} else {	// UPDATE mode, toggle just one
+					visual_indicator[config]->toggle();
+				}
                 delay(100);
             }
-            visual_indicator[config]->off();
+            delay(1000);
+			
+			// now switch to a configuration with one LED on, because well toggle both in the ssidFinder
+			visual_indicator[0]->off();
+			visual_indicator[1]->on();
            
             SSID.toCharArray(SSID_char,20);
-            if(ssidFinder.check_SSID_in_range(SSID_char)){
-                
-                // flash 5x green to show that I've found the WLAN1 and try to connect now
+            if(ssidFinder.check_SSID_in_range(SSID_char,green,red)){
+                // flash 5x green to show that I've found the WLAN and try to connect now
+				visual_indicator[0]->off();
+				visual_indicator[1]->off();
+				delay(1000);
                 for(int i=0;i<2*5; i++){
-                    visual_indicator[config]->toggle();
+					if(mode!=UPDATE){	// MACS mode, toggle both
+						visual_indicator[0]->toggle();
+						visual_indicator[1]->toggle();
+					} else {	// UPDATE mode, toggle just one
+						visual_indicator[config]->toggle();
+					}
                     delay(100);
                 }
-                visual_indicator[config]->off();
-                
-                //try_backup=false;
+				//try_backup=false;
                 //Serial.println("setting crededentials");
                 //Serial.println(SSID[0]);
-                WiFi.setCredentials(SSID, pw, mode);
+                WiFi.setCredentials(SSID, pw, type);
                 break;
             };
+			// end with both off, we should have a clean start if we have to loop
+			visual_indicator[0]->off();
+			visual_indicator[1]->off();
         };
     };
 
+	// start with both off, to show a pattern, different from scanning
+	visual_indicator[0]->off();
+	visual_indicator[1]->off();
     for(int i=0; i<200 && !WiFi.hasCredentials(); i++){
         // take new info
         parse_wifi();
         // set info
         delay(50);
-        if(i%2==0){
-            green->off();
-            red->on();
-        } else {
-            green->on();
-            red->off();
-        }
+		visual_indicator[0]->toggle();
+		visual_indicator[1]->toggle();
     }
     
+	visual_indicator[0]->off();
+	visual_indicator[1]->off();
     if(WiFi.hasCredentials()){
         WiFi.connect();
         //Serial.println("return true");
-        green->off();
-        red->off();
         for(int i=0;i<2*2; i++){
-            green->toggle();
-            red->toggle();
+			if(mode!=UPDATE){	// MACS mode, toggle both
+				visual_indicator[0]->toggle();
+				visual_indicator[1]->toggle();
+			} else {	// UPDATE mode, toggle just one
+				visual_indicator[config]->toggle();
+			}
             delay(100);
-        }
-        green->off();
-        red->off();
-        return true;
+		}
+		visual_indicator[0]->off();
+		visual_indicator[1]->off();
+		return true;
     }
     
-    //Serial.println("return false");
-    delay(1000);
-    return false;
+	visual_indicator[0]->off();
+	visual_indicator[1]->off();
+	return false;
 }
 
-// set the config for the regular operational mode
-bool set_macs_login(LED *green, LED *red){
-    WiFi.on();
-    WiFi.clearCredentials();
-    
-    String SSID;
-    String pw;
-    int mode;
-    bool loop=true;
-    green->off();
-    red->off();
-    
-    while(loop){
-        loop=false;
-        
-        if(get_wifi_config(WIFI_MACS,&SSID,&pw,&mode)){
-            // show that we found a valid config
-            for(int i=0;i<2*3; i++){
-                green->toggle();
-                red->toggle();
-                delay(100);
-            }
-            green->off();
-            red->off();
-            
-            FindSSID ssidFinder;
-            char SSID_char[20];
-            SSID.toCharArray(SSID_char,20);
-            
-            if(ssidFinder.check_SSID_in_range(SSID_char)){
-                // show that we found that wifi, and try to connect
-                for(int i=0;i<2*5; i++){
-                    green->toggle();
-                    red->toggle();
-                    delay(100);
-                }
-                green->off();
-                red->off();
-                
-                WiFi.setCredentials(SSID, pw, mode);
-            }
-        }
-        
-    
-        for(int i=0; i<10 && !WiFi.hasCredentials(); i++){
-            // take new info
-            if(parse_wifi()){
-                loop=true;
-            }
-            // set info
-            delay(1000);
-        }
-    }
-    
-    if(WiFi.hasCredentials()){
-        WiFi.connect();
-        green->off();
-        red->off();
-        for(int i=0;i<2*2; i++){
-            green->toggle();
-            red->toggle();
-            delay(100);
-        }
-        green->off();
-        red->off();
-        return true;
-    }
-    
-    return false;
-}
 
 
 // read data from EEPROM, check them and set them if the check is passed
@@ -510,8 +503,3 @@ bool parse_wifi(){
     return false;
     //Serial.println("while end");
 }
-    
-    
-    
-    
-    
