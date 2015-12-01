@@ -15,7 +15,7 @@ def log(inp,reset=0):
 	print(out)
 
 try:	
-	log("Reading WiFi config file")
+	log("Reading WiFi config file",1)
 except:
 	exit("could not start logging")
 
@@ -24,7 +24,7 @@ except:
 # open file
 try:
 	dirname, filename = os.path.split(os.path.abspath(sys.argv[0]))
-	fileh = open(dirname+"/config.txt", 'r')
+	fileh = open("/tmp/macs_config.txt", 'r')
 except:
 	exit("file not found")
 
