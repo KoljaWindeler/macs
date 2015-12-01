@@ -27,6 +27,7 @@
 #include "application.h"
 #include "stdint.h"
 #include "config.h"
+#include "application.h"
 
 // network
 IPAddress HOSTNAME(192,168,188,23);
@@ -69,6 +70,7 @@ void setup() {
     
     // antenna selection
     pinMode(ANTENNA_PIN,INPUT_PULLUP);
+    
     if(digitalRead(ANTENNA_PIN)==LOW){ // high == no jumper to pull it down 
         WiFi.selectAntenna(ANT_EXTERNAL);
     } else {
@@ -81,7 +83,7 @@ void setup() {
 
 
     // start sequence, to remind user to set mode
-    red_led.on();
+    /*red_led.on();
     for(uint8_t i=0;i<SEC_WAIT_BOOTUP;i++){
         Serial.print(i+1);
         Serial.print("/");
@@ -95,7 +97,7 @@ void setup() {
         }
     }
     red_led.off();
-    green_led.off();
+    green_led.off();*/
     
     
     // read mode to starting with
@@ -106,8 +108,8 @@ void setup() {
         Serial.println("- MACS -");
         #endif
         
-        red_led.on();
-        green_led.on();
+        //red_led.on();
+        //green_led.on();
         
         set_connected(0); // init as not connected
         if(update_ids(true)){ // true = force update, update_ids will initiate the connect
@@ -739,5 +741,4 @@ uint8_t get_my_id(){
     return id;
 }
 //////////////////////////////// GET MY ID ////////////////////////////////
-
 
