@@ -177,6 +177,7 @@ bool set_login(LED *green, LED *red, uint8_t mode){
                 WiFi.setCredentials(SSID, pw, type);
                 break;
             };
+            delay(1000);
 			// end with both off, we should have a clean start if we have to loop
 			visual_indicator[0]->off();
 			visual_indicator[1]->off();
@@ -198,7 +199,28 @@ bool set_login(LED *green, LED *red, uint8_t mode){
 	visual_indicator[0]->off();
 	visual_indicator[1]->off();
     if(WiFi.hasCredentials()){
-        WiFi.connect();
+        // set IP 
+        if(mode!=UPDATE){
+            IPAddress myAddress(192,168,1,100+get_my_id());
+            IPAddress netmask(255,255,255,0);
+            IPAddress gateway(192,168,1,1);
+            IPAddress dns(192,168,1,1);
+            WiFi.setStaticIP(myAddress, netmask, gateway, dns);
+        
+            // now let's use the configured IP
+            WiFi.useStaticIP();
+        } else {
+            WiFi.useDynamicIP();
+        }
+        
+        // finally connect
+        WiFi.connect(WIFI_CONNECT_SKIP_LISTEN);
+        int i=0;
+        while(i<200 && !WiFi.ready()){
+            delay(50); // wait 59
+            i++;
+        }
+        
         //Serial.println("return true");
         for(int i=0;i<2*2; i++){
 			if(mode!=UPDATE){	// MACS mode, toggle both
@@ -503,3 +525,17 @@ bool parse_wifi(){
     return false;
     //Serial.println("while end");
 }
+    
+    
+void listen(system_event_t event, uint32_t param, void* pointer){
+    if (event==wifi_listen_update){
+        WiFi.disconnect();
+        WiFi.listen(false); 
+    }
+    /* else if(event==network_status){
+        if(param==network_status_disconnecting){
+            WiFi.off();
+        }
+    }*/
+}
+ 	
