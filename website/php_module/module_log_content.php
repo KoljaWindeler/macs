@@ -36,7 +36,7 @@ $link[3][1]="desc";
 $link[3][2]="User";
 
 //// sorting
-$log_sort_column=$link[0][0];
+$log_sort_column="id";
 $log_sort_dir=$link[0][1];
 
 $MACRO_LOG_SORT_COLUMN="LOG_SORT_COLUMN";
