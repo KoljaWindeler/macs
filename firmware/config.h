@@ -57,6 +57,7 @@
 #define WIFI_MACS               0
 #define WIFI_UPDATE_1           1
 #define WIFI_UPDATE_2           2
+#define UPDATE                  1
 
 // macros
 #define RELAY_CONNECTED         1
@@ -84,5 +85,6 @@
 // network
 #define HOSTPORT 80
 
-#endif
+uint8_t get_my_id();
 
+#endif

@@ -66,7 +66,9 @@ void setup() {
     pinMode(RELAY_PIN,OUTPUT);          // driver for the relay
     pinMode(TAG_IN_RANGE_INPUT,INPUT);
     
-    
+    // register system handles
+    System.on(wifi_listen, listen);
+    //System.on(network_status, listen);
     
     // antenna selection
     pinMode(ANTENNA_PIN,INPUT_PULLUP);
@@ -80,25 +82,6 @@ void setup() {
     // the db led is a weak and inverterted LED on the same pin as the update_input, this will set the pin to input_pullup anyway //pinMode(DB_LED_AND_UPDATE_PIN,INPUT_PULLUP);
     Serial.begin(115200);
     Serial1.begin(9600);
-
-
-    // start sequence, to remind user to set mode
-    /*red_led.on();
-    for(uint8_t i=0;i<SEC_WAIT_BOOTUP;i++){
-        Serial.print(i+1);
-        Serial.print("/");
-        Serial.println(5);
-        
-        // 1 sec
-        for(uint8_t ii=0; ii<5; ii++){
-            delay(200);
-            red_led.toggle();
-            green_led.toggle();
-        }
-    }
-    red_led.off();
-    green_led.off();*/
-    
     
     // read mode to starting with
     if(digitalRead(DB_LED_AND_UPDATE_PIN)){
@@ -144,7 +127,6 @@ void setup() {
                 // backup, if connect didn't work, repeat it
                 while(!WiFi.ready()){
                     Serial.print(".");
-                    WiFi.connect();
                     Particle.connect();
                 }
 
@@ -227,6 +209,7 @@ void loop() {
                 // the red will be off anywa (ok), we want to show that this card was good, turn green on
                 // 4. assuming that we are connected, we reached this point then create_report will not try to reconnect, but the report failed, create_report will set us to not conneted
                 // the red will be blinkin (ok), we want to show that this card was good, turn green on
+                set_connected(connected,1); // force to resume LED pattern
                 green_led.on();
             } else {
                 // if we have a card that is not known to be valid we should maybe check our database
@@ -274,6 +257,8 @@ void loop() {
         } else {
             red_led.resume();    
         }
+        
+        set_connected(connected,1); // force to resume LED pattern
     
         currentTag=-1;      // reset current user
         currentTagIndex=0;  // reset index counter for incoming bytes
@@ -702,7 +687,7 @@ void set_connected(int status){
 };
 
 void set_connected(int status, bool force){
-    if(status==1 && connected==0){
+    if(status==1 && (connected==0 || force)){
         connected=1;
         green_led.blink();
         red_led.off();
