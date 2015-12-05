@@ -41,6 +41,7 @@ if(isset($_GET["logme"]) && isset($_GET["event"]) && (isset($_GET["mach_nr"]) ||
 		};
 	}
 	add_log($mach,$user,$event,$time);
+	clean_log($mach,$user,$event,time());
 };
 
 function add_log($machine,$user,$event,$time){
@@ -55,4 +56,42 @@ function add_log($machine,$user,$event,$time){
 	$stmt->execute();
 };
 
+function clean_log($machine,$user,$event,$time){
+	global $db;
+	$stmt="SELECT COUNT(*) FROM  `macs`.`log` WHERE `timestamp`>=".($time-2)." and `timestamp`<=".($time)." and `user_id`=:user and `machine_id`=:machine";
+	$stmt = $db->prepare($stmt);
+	$stmt->bindParam(":user",$user,PDO::PARAM_STR);
+	$stmt->bindParam(":machine",$machine,PDO::PARAM_STR);
+	$stmt->execute();
+	foreach($stmt as $row){
+		if($row["COUNT(*)"]==3){
+			if($event=="Unlocked"){
+				$stmt = $db->prepare("DELETE FROM  `macs`.`log` WHERE `timestamp`>=".($time-2)." and  `timestamp`<=".($time)." and `user_id`=:user and `machine_id`=:machine ORDER BY `id` ASC LIMIT 2");
+				$stmt->bindParam(":user",$user,PDO::PARAM_STR);
+				$stmt->bindParam(":machine",$machine,PDO::PARAM_STR);
+				$stmt->execute();
+			} else if($event=="Locked"){
+				$stmt = $db->prepare("DELETE FROM  `macs`.`log` WHERE `timestamp`>=".($time-2)." and  `timestamp`<=".($time)." and `user_id`=:user and `machine_id`=:machine ORDER BY `id` DESC LIMIT 2");
+				$stmt->bindParam(":user",$user,PDO::PARAM_STR);
+				$stmt->bindParam(":machine",$machine,PDO::PARAM_STR);
+				$stmt->execute();
+			}
+		}
+	}
+
+	// delete double reject entries
+	$stmt="SELECT COUNT(*) FROM  `macs`.`log` WHERE `timestamp`>=".($time-2)." and `timestamp`<=".($time)." and `user_id`=:user and `machine_id`=:machine and `event`=:event";
+	$stmt = $db->prepare($stmt);
+	$stmt->bindParam(":event",$event,PDO::PARAM_STR);
+	$stmt->bindParam(":user",$user,PDO::PARAM_STR);
+	$stmt->bindParam(":machine",$machine,PDO::PARAM_STR);
+	$stmt->execute();
+	foreach($stmt as $row){
+		$stmt = $db->prepare("DELETE FROM  `macs`.`log` WHERE `timestamp`>=".($time-2)." and  `timestamp`<=".($time)." and `user_id`=:user and `machine_id`=:machine and `event`=:event ORDER BY `id` DESC LIMIT ".($row["COUNT(*)"]-1));
+		$stmt->bindParam(":event",$event,PDO::PARAM_STR);
+		$stmt->bindParam(":user",$user,PDO::PARAM_STR);
+		$stmt->bindParam(":machine",$machine,PDO::PARAM_STR);
+		$stmt->execute();
+	}
+}
 ?>
