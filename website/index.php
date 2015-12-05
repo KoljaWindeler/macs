@@ -512,14 +512,14 @@ $o.=$o_log;
 //////////////// LOG /////////////////
 include("php_module/module_usage.php");
 
-$o.='</td></tr><tr class="spacer"><td>&nbsp;</td></tr><tr class="header click"><td>+ Usage<a name="usage"></a></td></tr><tr><td>';
+$o.='</td></tr><tr class="spacer"><td>&nbsp;</td></tr><tr class="header click '.hide_table("usage").'"><td>+ Usage<a name="usage"></a></td></tr><tr><td>';
 $o.='<tr><td>';
 
 $o.=$o_usage;
 //////////////// LOG /////////////////
 
 //////////////// setup /////////////////
-$o.='</td></tr><tr class="spacer"><td>&nbsp;</td></tr><tr class="header click"><td>+ Setup<a name="setup"></a></td></tr><tr><td>';
+$o.='</td></tr><tr class="spacer"><td>&nbsp;</td></tr><tr class="header click '.hide_table("setup").'"><td>+ Setup<a name="setup"></a></td></tr><tr><td>';
 $o.='<tr><td>';
 
 $o.='<iframe width="100%" height="400" src="php_module/module_setup.php" border="0"></iframe>';
