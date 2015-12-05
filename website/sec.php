@@ -20,7 +20,8 @@ if(!isset($_SESSION['ID']) or $_SESSION['ID']==0){
 				//echo "i guess you are in";
 				$_SESSION['ID']=$row["id"];
 				$login=1;
-				show_info("Good to see you again, ".$_POST["macs_login"]);
+				//show_info("Good to see you again, ".$_POST["macs_login"]);
+				echo "<script>window.location.replace('index.php?msg=Good to see you again, ".$_POST["macs_login"]."');</script>";
 				break;
 			}
 		};
@@ -29,11 +30,13 @@ if(!isset($_SESSION['ID']) or $_SESSION['ID']==0){
 	if(!$login){
 		include_once("html.php");
 		$o='<form action="index.php?" method="post" id="login_form">';
-		$o.='<table class="logintable"><tr><td colspan="2">Please log in, use Peter / tinkerbell for now</td></tr>';
+		$o.='<table class="logintable">';
 		$o.='<tr><td><input type="text" id="macs_login" name="macs_login"></td><td><input type="password" id="macs_pw" name="macs_pw"></td></tr>';
 		$o.='<tr><td colspan="2"><input type="hidden" name="macs_pw_md5" id="macs_pw_md5"><input type="submit"></td></tr></table></form>';
 		echo $header.$o.$footer;
 		exit(0);
 	};
+} else if(isset($_GET['msg'])) {
+	show_info($_GET['msg']);
 };
 ?>
