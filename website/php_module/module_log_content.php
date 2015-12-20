@@ -105,14 +105,7 @@ foreach ($stmt as $row) {
 	$u_out=str_replace(";",",",$u_out);
 	$extra=str_replace(";",",",$extra);
 
-	$tz=0;
-	if(isset($_SESSION['tz'])){
-		if(is_numeric($_SESSION['tz'])){
-			$tz=$_SESSION['tz'];
-		};
-	};
-
- 	$o_log.=date("Y/m/d H:i",$row["timestamp"]-$tz).';'.$row["event"].';'.$m_out.';'.$u_out.';'.$extra."\r\n";
+ 	$o_log.=date("Y/m/d H:i",$row["timestamp"]).';'.$row["event"].';'.$m_out.';'.$u_out.';'.$extra."\r\n";
 
 };
 //////////////// LOG /////////////////

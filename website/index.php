@@ -264,7 +264,7 @@ $o_user="";
 $stmt = $db->prepare('SELECT * FROM user where active=1');
 $stmt->execute();
 foreach ($stmt as $row) {
-	$last_seen=date("Y/m/d H:i",$row["last_seen"]-$_SESSION['tz']);
+	$last_seen=date("Y/m/d H:i",$row["last_seen"]);
 	if($row["last_seen"]==0){
 		$last_seen="-";
 	};
@@ -347,7 +347,7 @@ $o_mach="";
 $stmt = $db->prepare('SELECT * FROM mach WHERE `active`=1');
 $stmt->execute();
 foreach ($stmt as $row) {
-	$last_seen=date("Y/m/d H:i",$row["last_seen"]-$_SESSION['tz']);
+	$last_seen=date("Y/m/d H:i",$row["last_seen"]);
 	if($row["last_seen"]==0){
 		$last_seen="-";
 	};

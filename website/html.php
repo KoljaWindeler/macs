@@ -1,14 +1,4 @@
 <?php
-$tz="";
-if(isset($_GET['tz'])){
-	$_SESSION['tz']=$_GET['tz']*60;
-} elseif (!isset($_SESSION['tz'])){
-	$params = array_merge($_GET, array("tz" => "REPLACE"));
-	$new_query_string = http_build_query($params);
-
-	$tz='var now = new Date(); var url="'.$_SERVER['REQUEST_URI'].'?'.$new_query_string.'"; window.location.replace(url.replace("REPLACE",now.getTimezoneOffset()));';
-};
-
 // get new background at start of session
 if(!isset($_SESSION["bg"]) || $_SESSION["bg"]==""){
 	$_SESSION["bg"]=rand(1,3);
@@ -34,13 +24,10 @@ $header='<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="tex
 <script type=\'text/javascript\' src="js/amcharts.js"></script>
 <script type=\'text/javascript\' src="js/serial.js"></script>
 <script src="js/jquery.min.js" type=\'text/javascript\'></script>
-<script src="js/jstz.min.js" type=\'text/javascript\'>></script>
 <script src="js/md5.js" type=\'text/javascript\'></script>
 <script src="js/log.js" type=\'text/javascript\'></script>
 <script type=\'text/javascript\'>
 	$(function(){
-		'.$tz.'
-
 		$(\'.click\').click(function(){
 			$(this).nextUntil(\'tr.spacer\').fadeToggle("slow");
 			});
