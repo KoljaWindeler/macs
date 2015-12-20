@@ -3,10 +3,12 @@
 #define AKTORS_H_
 
 #include "application.h"
+#include "log_backup.h"
 #include "stdint.h"
 #include "led.h"
 #include "wifi_login.h"
 #include "rest_client.h"
+
 
 
 #define MAX_JUMPER_PIN 6 // 2^(6+1)-1=127
@@ -86,5 +88,7 @@
 #define HOSTPORT 80
 
 uint8_t get_my_id();
+bool fire_report(uint8_t event,uint32_t badge,uint32_t extrainfo);
 
 #endif
+
