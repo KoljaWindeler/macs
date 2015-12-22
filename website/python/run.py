@@ -66,7 +66,7 @@ for port in result:
 			b = bytearray()
 			b.extend(map(ord, data_ar[i]))
 			# field 0 (id) and 3 (wifi type) are asci nr, convert them to nr only
-			if((i==3 or i==0) and b[0]>=ord('0') and b[0]<=ord('3')):
+			if((i==3 or i==0) and b[0]>=ord('0') and b[0]<=ord('4')):
 				#print("converted type")
 				b[0]-=ord('0')
 			# loop over all chars in the current field
@@ -80,8 +80,8 @@ for port in result:
 		msg.append(chk)
 		msg.append(0x09)
 
-		#for i in range(0,len(msg)):
-		#	print(hex(msg[i]))
+		for i in range(0,len(msg)):
+			print(hex(msg[i]))
 
 		if(a==0):
 			log("Port "+port+" found")
