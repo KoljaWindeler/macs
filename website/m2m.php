@@ -24,8 +24,9 @@ if(isset($_GET["mach_nr"])){
 
 
 		// update last seen
-		$stmt = $db->prepare("UPDATE `mach` SET `last_seen`=".time()." WHERE mach_nr=:id");
+		$stmt = $db->prepare("UPDATE `mach` SET `last_seen`=".time().", `version`=:v WHERE mach_nr=:id");
 		$stmt->bindParam(":id",$_GET["mach_nr"],PDO::PARAM_INT);
+		$stmt->bindParam(":v",$_GET["v"],PDO::PARAM_INT);
 		$stmt->execute();
 
 		// check if we should create a log entry for this
