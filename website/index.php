@@ -79,7 +79,7 @@ $resume=0;
 					} else {
 						// run some checks before we accept the data
 						// 2. check if there is already the same badge
-						$stmt = $db->prepare("SELECT COUNT(*) FROM `macs`.`user` WHERE badge_id=:badge_id");
+						$stmt = $db->prepare("SELECT COUNT(*) FROM `macs`.`user` WHERE badge_id=:badge_id and `active`=1");
 						$stmt->bindParam(":badge_id",$_POST["e_badge"],PDO::PARAM_INT);
 						$stmt->execute();
 						foreach($stmt as $row){
@@ -264,7 +264,7 @@ $o_user="";
 $stmt = $db->prepare('SELECT * FROM user where active=1');
 $stmt->execute();
 foreach ($stmt as $row) {
-	$last_seen=date("Y/m/d H:i",$row["last_seen"]-$_SESSION['tz']);
+	$last_seen=date("Y/m/d H:i",$row["last_seen"]);
 	if($row["last_seen"]==0){
 		$last_seen="-";
 	};
@@ -341,13 +341,13 @@ $o.='</td></tr><tr class="spacer"><td>&nbsp;</td></tr><tr class="header click '.
 
 /////////////// GET MACHINE ////////////////
 $o.='<table class="fillme"><tr class="subheader">
-<td>Name</td><td>Machine-Nr</td><td>Description</td><td>last used</td><td>&nbsp;</td></tr>';
+<td>Name</td><td>Machine-Nr</td><td>Description</td><td>last used</td><td>version</td><td>&nbsp;</td></tr>';
 
 $o_mach="";
 $stmt = $db->prepare('SELECT * FROM mach WHERE `active`=1');
 $stmt->execute();
 foreach ($stmt as $row) {
-	$last_seen=date("Y/m/d H:i",$row["last_seen"]-$_SESSION['tz']);
+	$last_seen=date("Y/m/d H:i",$row["last_seen"]);
 	if($row["last_seen"]==0){
 		$last_seen="-";
 	};
@@ -357,6 +357,7 @@ foreach ($stmt as $row) {
 		<td>'.$row["mach_nr"].'</td>
 		<td>'.$row["desc"].'</td>
 		<td>'.$last_seen.'</td>
+		<td>'.$row["version"].'</td>
 		<td>
 		<form method="POST" action="index.php?show=mach">
 		<input type="submit" name="submit" value="edit">
@@ -399,15 +400,15 @@ if(isset($_POST["edit"])){
 
 	};
 };
-$o.='<tr><td colspan="5">&nbsp;</td></tr><tr class="subheader">
-  <td>Name</td><td>Machine-Nr</td><td>Description</td><td colspan="2">&nbsp;</td></tr><tr>
+$o.='<tr><td colspan="6">&nbsp;</td></tr><tr class="subheader">
+  <td>Name</td><td>Machine-Nr</td><td>Description</td><td colspan="3">&nbsp;</td></tr><tr>
 	<form method="POST" action="index.php?show=mach">
 	<td><input type="text" name="e_name" value="'.$e_name.'"></td>
 	<td><input type="text" name="e_mach_nr" value="'.$e_mach_nr.'"></td>
 	<td><input type="text" name="e_desc" value="'.$e_desc.'"></td>
 	<td colspan="2">-</td></tr>
 	<input type="hidden" name="edit" value="mach"><input type="hidden" name="e_id" value="'.$e_id.'">
-  <tr><td colspan="5"><input type="submit" name="submit" value="'.$btn.'"></form></td></tr>
+  <tr><td colspan="6"><input type="submit" name="submit" value="'.$btn.'"></form></td></tr>
   </table>';
 /////////////// EDIT MACHINE ////////////////
 
