@@ -1,4 +1,3 @@
-
 /* LED Patter
 * === STARTUP ===
 * red,green,red,green  -> i give you 10 sec to connect to me, before I start
@@ -31,6 +30,7 @@
 
 // network
 IPAddress HOSTNAME(192,168,188,23);
+uint32_t v=20151222;
 
 uint8_t keys_available=0;
 uint32_t keys[MAX_KEYS];
@@ -52,6 +52,8 @@ LED db_led(DB_LED_AND_UPDATE_PIN,DB_LED_DELAY,1,1); // weak + inverse
 LED red_led(RED_LED_PIN,RED_LED_DELAY,0,0);
 LED green_led(GREEN_LED_PIN,GREEN_LED_DELAY,0,0);
 
+BACKUP b; // report backup
+
 SYSTEM_MODE(MANUAL);// do not connect on your own
 
 // http server
@@ -59,6 +61,7 @@ RestClient client = RestClient(HOSTNAME);
 
 //////////////////////////////// SETUP ////////////////////////////////
 void setup() {
+    FLASH_Lock();
     // set adress pins
     for(uint8_t i=10; i<=MAX_JUMPER_PIN+10; i++){   // A0..7 is 10..17, used to read my ID
        pinMode(i,INPUT_PULLUP);
@@ -79,7 +82,8 @@ void setup() {
         WiFi.selectAntenna(ANT_AUTO);
     }
     
-    // the db led is a weak and inverterted LED on the same pin as the update_input, this will set the pin to input_pullup anyway //pinMode(DB_LED_AND_UPDATE_PIN,INPUT_PULLUP);
+    // the db led is a weak and inverterted LED on the same pin as the update_input, this will set the pin to input_pullup anyway //
+    pinMode(DB_LED_AND_UPDATE_PIN,INPUT_PULLUP);
     Serial.begin(115200);
     Serial1.begin(9600);
     
@@ -254,9 +258,9 @@ void loop() {
             green_led.resume();
             // last because it takes long
             create_report(LOG_RELAY_DISCONNECTED,currentTag,open_time_sec);
-        } else {
+        } /*else {
             red_led.resume();    
-        }
+        } */
         
         set_connected(connected,1); // force to resume LED pattern
     
@@ -495,7 +499,7 @@ bool update_ids(bool forced){
     // request data
     uint32_t now=millis();
     String response;
-    String url="/m2m.php?mach_nr="+String(get_my_id())+"&forced=";
+    String url="/m2m.php?v="+String(v)+"&mach_nr="+String(get_my_id())+"&forced=";
     if(forced){
         url=url+"1";
     } else {
@@ -563,7 +567,7 @@ bool update_ids(bool forced){
             #ifdef DEBUG_JKW_MAIN
             Serial.println("No update received");
             #endif
-        
+            b.try_fire();
             db_led.off(); // turn the led off
             return true;
         }
@@ -576,11 +580,14 @@ bool update_ids(bool forced){
         keys[i]=0;
     }
 
+    FLASH_Unlock();
     for(uint16_t i=0;i<response.length();i++){
         Serial.print(response.charAt(i));
 
         if(response.charAt(i)==','){
             if(current_key<MAX_KEYS){
+                Serial1.print("write:");
+                Serial1.println(current_key*4+3);
                 // store to EEPROM
                 EEPROM.update(current_key*4+0, (keys[current_key]>>24)&0xff);
                 EEPROM.update(current_key*4+1, (keys[current_key]>>16)&0xff);
@@ -597,11 +604,17 @@ bool update_ids(bool forced){
     
     
     // log number of keys to the eeprom
+    Serial1.print("write:");
+    Serial1.println(KEY_NUM_EEPROM_LOW);
+    
     EEPROM.update(KEY_NUM_EEPROM_HIGH,(keys_available>>8)&0xff);
     EEPROM.update(KEY_NUM_EEPROM_LOW,(keys_available)&0xff);
     // checksum
+    Serial1.print("write:");
+    Serial1.println(KEY_CHECK_EEPROM_LOW);
     EEPROM.update(KEY_CHECK_EEPROM_HIGH,((keys_available+1)>>8)&0xff);
     EEPROM.update(KEY_CHECK_EEPROM_LOW,((keys_available+1))&0xff);
+    FLASH_Lock();
     
     #ifdef DEBUG_JKW_MAIN
     Serial.print("Total received keys for my id(");
@@ -617,6 +630,7 @@ bool update_ids(bool forced){
     };
     #endif
     
+    b.try_fire(); // try to submit old reports
     db_led.off(); // turn the led off
     return true;
 }
@@ -625,13 +639,22 @@ bool update_ids(bool forced){
 //////////////////////////////// CREATE REPORT ////////////////////////////////
 // create a log entry on the server for the action performed
 void create_report(uint8_t event,uint32_t badge,uint32_t extrainfo){
+    if(!fire_report(event, badge, extrainfo)){
+        b.add(event,badge,extrainfo);
+    } else {
+        b.try_fire();
+    }
+}
+    
+bool fire_report(uint8_t event,uint32_t badge,uint32_t extrainfo){
+    bool ret=true;
     
     if(!WiFi.ready()){
         if(set_macs_login(&green_led,&red_led)){
             set_connected(1); // this could potentially destroy our LED pattern? TODO
         } else {
             set_connected(0);
-            return; // pointless to go on
+            return false; // pointless to go on
         }
     }
     
@@ -646,7 +669,7 @@ void create_report(uint8_t event,uint32_t badge,uint32_t extrainfo){
     } else if(event==LOG_NOTHING){
         request_path = "/history.php";
     } else {
-        return;
+        return false;
     }
     
     #ifdef DEBUG_JKW_MAIN
@@ -668,6 +691,7 @@ void create_report(uint8_t event,uint32_t badge,uint32_t extrainfo){
         set_connected(1);
     } else if(statusCode!=200){
         set_connected(0);
+        ret=false;
     }
     
     #ifdef DEBUG_JKW_MAIN
@@ -677,6 +701,7 @@ void create_report(uint8_t event,uint32_t badge,uint32_t extrainfo){
     #endif
     
     db_led.off(); // turn the led off
+    return ret;
 }
 //////////////////////////////// CREATE REPORT ////////////////////////////////
 

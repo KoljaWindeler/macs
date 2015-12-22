@@ -245,6 +245,7 @@ bool set_login(LED *green, LED *red, uint8_t mode){
 
 // read data from EEPROM, check them and set them if the check is passed
 bool get_wifi_config(uint8_t id, String *_SSID, String *_pw, int *_type){
+    Serial1.println("get wifi config!!");
     uint16_t data_start=0;
     if(id==WIFI_MACS){
         data_start=START_WIFI_MACS;
@@ -279,13 +280,6 @@ bool get_wifi_config(uint8_t id, String *_SSID, String *_pw, int *_type){
         }
     }
     
-    if(all_FF){
-        #ifdef DEBUG_JKW_WIFI
-        Serial.println("invalid wifi data FF");
-        #endif
-        return false;
-    }
-    
     SSID[p+1]=0x00;
     
     // read pw
@@ -300,31 +294,83 @@ bool get_wifi_config(uint8_t id, String *_SSID, String *_pw, int *_type){
     type=EEPROM.read(data_start+40);
     chk=EEPROM.read(data_start+41);
     
-    #ifdef DEBUG_JKW_WIFI
-    Serial.println("set wifi, data:");
-    Serial.print("SSID:");
-    Serial.print((const char*)SSID);
-    Serial.println(".");
+    
+    // a bug in the system can erase all EEPROM info.
+    // it is connected to a brown out situation
+    // in this case the hole eeprom page is 0xFF
+    // the only thing we can do is to return the default 
+    // wifi config, which we'll do below
+    if(all_FF){
+        //#ifdef DEBUG_JKW_WIFI
+        //Serial.println("invalid wifi data FF");
+        //#endif
+        Serial1.println("invalid wifi data FF");
+        //return false;
+        
+        memset(SSID,0x00,21);
+        memset(pw,0x00,21);
+        
+        if(id==WIFI_MACS){
+            memcpy(SSID,"macs",4);
+            memcpy(pw,"6215027094",10);
+            type=3;
+            chk=0x17;
+        } else if(id==WIFI_UPDATE_1){
+            memcpy(SSID,"ajlokert",8);
+            memcpy(pw,"qweqweqwe",9);
+            type=3;
+            chk=0x60;
+        } else if(id==WIFI_UPDATE_2){
+            memcpy(SSID,"shop",4);
+            memcpy(pw,"abcdefgh",8);
+            type=3;
+            chk=0x0F;
+        }
+    }
+    
+    //#ifdef DEBUG_JKW_WIFI
+    //Serial.println("set wifi, data:");
+    //Serial.print("SSID:");
+    //Serial.print((const char*)SSID);
+    //Serial.println(".");
+    //delay(1000);
+    //Serial.print("PW:");
+    //Serial.print((const char*)pw);
+    //Serial.println(".");
+    //delay(1000);
+    //Serial.print("type:");
+    //Serial.print(type+'0');
+    //Serial.println(".");
+    //delay(1000);
+    //Serial.print("chk:");
+    //Serial.print(chk);
+    //Serial.println(".");
+    //delay(1000);
+    //#endif
+    Serial1.println("set wifi, data:");
+    Serial1.print("SSID:");
+    Serial1.print((const char*)SSID);
+    Serial1.println(".");
     delay(1000);
-    Serial.print("PW:");
-    Serial.print((const char*)pw);
-    Serial.println(".");
+    Serial1.print("PW:");
+    Serial1.print((const char*)pw);
+    Serial1.println(".");
     delay(1000);
-    Serial.print("type:");
-    Serial.print(type+'0');
-    Serial.println(".");
+    Serial1.print("type:");
+    Serial1.print(type+'0');
+    Serial1.println(".");
     delay(1000);
-    Serial.print("chk:");
-    Serial.print(chk);
-    Serial.println(".");
+    Serial1.print("chk:");
+    Serial1.print(chk);
+    Serial1.println(".");
     delay(1000);
-    #endif
     
     if(!check_wifi_config((const char*)SSID,(const char*)pw,type,chk)){
         
-        #ifdef DEBUG_JKW_WIFI
-        Serial.println("set wifi, data invalid");
-        #endif
+        //#ifdef DEBUG_JKW_WIFI
+        //Serial.println("set wifi, data invalid");
+        //#endif
+        Serial1.println("set wifi, data invalid");
         *_SSID="";
         *_pw="";
         *_type=0;
@@ -386,6 +432,7 @@ bool save_wifi_config(uint8_t id,String SSID,String pw,uint8_t type,uint8_t chk)
     Serial.println(".");
     delay(1000);
     #endif
+    Serial1.println("set wifi config!!");
     
     uint16_t data_start=0;
     // set data start, EEPROM adress
@@ -420,6 +467,7 @@ bool save_wifi_config(uint8_t id,String SSID,String pw,uint8_t type,uint8_t chk)
     
     //save the data
     // ssid
+    FLASH_Unlock();
     for(uint8_t i=0;i<SSID.length() && i<20;i++){
         EEPROM.update(data_start+i+0,SSID.charAt(i));
     }
@@ -437,7 +485,9 @@ bool save_wifi_config(uint8_t id,String SSID,String pw,uint8_t type,uint8_t chk)
     EEPROM.update(data_start+40,type);
     // checksum
     EEPROM.update(data_start+41,chk);
+    FLASH_Lock();
     
+    Serial1.println("done!!");
     return true;
 }
 
@@ -538,4 +588,4 @@ void listen(system_event_t event, uint32_t param, void* pointer){
         }
     }*/
 }
- 	
+ 
