@@ -30,7 +30,7 @@
 
 // network
 IPAddress HOSTNAME(192,168,188,23);
-uint32_t v=20151222;
+uint32_t v=20151231;
 
 uint8_t keys_available=0;
 uint32_t keys[MAX_KEYS];
@@ -108,92 +108,100 @@ void setup() {
         // ############ MACS MODUS ############ // 
         
     } else {
-        
-        // ############ UPDATE MODUS ############ // 
-        red_led.on();
-        green_led.on();
-        db_led.on();
-        
-        #ifdef DEBUG_JKW_MAIN
-        Serial.println("- Cloud -");
-        #endif
-        
-        // satrt loop that will set wifi data and connect to cloud,
-        // and if anything fails start again, until there is an update
-        while(1){
-            // set_update_login will return true, if we've read a valid config from 
-            // the EEPROM memory AND that WIFI was in range AND the module has saved the login
-            if(set_update_login(&green_led,&red_led)){
-                Serial.println("set update login done");
-                Particle.connect();
-                uint8_t i=0;
-
-                // backup, if connect didn't work, repeat it
-                while(!WiFi.ready()){
-                    Serial.print(".");
-                    Particle.connect();
-                }
-
-                // stay in update mode forever
-                while(WiFi.ready()){
-                    if(i!=millis()/1000){
-                        
-                        #ifdef DEBUG_JKW_MAIN
-                        Serial.print(i);
-                        Serial.print(": ");
-                        #endif
-                        
-                        if(Particle.connected()){
-                            // as soon as we are connected, swtich to blink mode to make it visible
-                            if(!connected){
-                                red_led.blink();
-                                green_led.blink();
-                                db_led.blink();
-                                connected=1;
-                            } else {
-                                Particle.process();
-                            }
-                            
-                            // check incomming data, unlikely here, because at this point we are already connected to an update wifi
-                            parse_wifi();
-                            
-                            // keep blinking
-                            red_led.check();
-                            green_led.check();
-                            db_led.check();
-                            
-                            #ifdef DEBUG_JKW_MAIN
-                            Serial.println("Photon connected");
-                            #endif
-                            
-                        } else {
-                            
-                            #ifdef DEBUG_JKW_MAIN
-                            Serial.println("Photon NOT connected");
-                            #endif
-                            
-                            // constant on == not yet connected
-                            red_led.on();
-                            green_led.on();
-                            db_led.on();
-                        }
-                        i=millis()/1000;
-                    } // i!=millis()/1000
-                    delay(200); // don't go to high as blink will look odd
-                } // end while(WiFi.ready())
-                // reaching this point tells us that we've set the wifi login, tried to connect but lost the connection, as the wifi is not (longer) ready
-            } // if(set_update_login())
-        } // end while(1)
-        // ############ UPDATE MODUS ############ // 
+       goto_update_mode();
     }
 }
 //////////////////////////////// SETUP ////////////////////////////////
+
+ // ############ UPDATE MODUS ############ // 
+void goto_update_mode(){
+    connected=0;
+    red_led.on();
+    green_led.on();
+    db_led.on();
+    
+    #ifdef DEBUG_JKW_MAIN
+    Serial.println("- Cloud -");
+    #endif
+    
+    // satrt loop that will set wifi data and connect to cloud,
+    // and if anything fails start again, until there is an update
+    while(1){
+        // set_update_login will return true, if we've read a valid config from 
+        // the EEPROM memory AND that WIFI was in range AND the module has saved the login
+        if(set_update_login(&green_led,&red_led)){
+            Serial.println("set update login done");
+            Particle.connect();
+            uint8_t i=0;
+
+            // backup, if connect didn't work, repeat it
+            while(!WiFi.ready()){
+                Serial.print(".");
+                Particle.connect();
+            }
+
+            // stay in update mode forever
+            while(WiFi.ready()){
+                if(i!=millis()/1000){
+                    
+                    #ifdef DEBUG_JKW_MAIN
+                    Serial.print(i);
+                    Serial.print(": ");
+                    #endif
+                    
+                    if(Particle.connected()){
+                        // as soon as we are connected, swtich to blink mode to make it visible
+                        if(!connected){
+                            red_led.blink();
+                            green_led.blink();
+                            db_led.blink();
+                            connected=1;
+                        } else {
+                            Particle.process();
+                        }
+                        
+                        // check incomming data, unlikely here, because at this point we are already connected to an update wifi
+                        parse_wifi();
+                        
+                        // keep blinking
+                        red_led.check();
+                        green_led.check();
+                        db_led.check();
+                        
+                        #ifdef DEBUG_JKW_MAIN
+                        Serial.println("Photon connected");
+                        #endif
+                        
+                    } else {
+                        
+                        #ifdef DEBUG_JKW_MAIN
+                        Serial.println("Photon NOT connected");
+                        #endif
+                        
+                        // constant on == not yet connected
+                        red_led.on();
+                        green_led.on();
+                        db_led.on();
+                    }
+                    i=millis()/1000;
+                } // i!=millis()/1000
+                delay(200); // don't go to high as blink will look odd
+            } // end while(WiFi.ready())
+            // reaching this point tells us that we've set the wifi login, tried to connect but lost the connection, as the wifi is not (longer) ready
+        } // if(set_update_login())
+    } // end while(1)
+    // ############ UPDATE MODUS ############ // 
+}
+// ############ UPDATE MODUS ############ // 
 
 //////////////////////////////// MAIN LOOP ////////////////////////////////
 // woop woop main loop
 void loop() {
     // check if we found a tag
     if(tag_found(currentTagBuf,&currentTag)){
+        if(currentTag == UPDATECARD){
+            goto_update_mode();
+        }
         // if we found a tag, test it
         // if it works close relay,
         // if not - ask the server for an update and try again
@@ -486,7 +494,7 @@ bool update_ids(bool forced){
         return false;
     }
     
-    if(!WiFi.ready()){
+    if(!is_wifi_connected()){
         if(!set_macs_login(&green_led,&red_led)){
             set_connected(0);
             return false;
@@ -649,7 +657,7 @@ void create_report(uint8_t event,uint32_t badge,uint32_t extrainfo){
 bool fire_report(uint8_t event,uint32_t badge,uint32_t extrainfo){
     bool ret=true;
     
-    if(!WiFi.ready()){
+    if(!is_wifi_connected()){
         if(set_macs_login(&green_led,&red_led)){
             set_connected(1); // this could potentially destroy our LED pattern? TODO
         } else {
@@ -722,6 +730,7 @@ void set_connected(int status, bool force){
         red_led.blink();
     }
 }
+
 //////////////////////////////// SET CONNECTED ////////////////////////////////
 
 //////////////////////////////// GET MY ID ////////////////////////////////
@@ -751,4 +760,5 @@ uint8_t get_my_id(){
     return id;
 }
 //////////////////////////////// GET MY ID ////////////////////////////////
+
 
