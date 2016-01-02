@@ -45,15 +45,16 @@ $resume=0;
 			}
 			elseif(isset($_POST["submit"]) & ($_POST["submit"]=="Add" || $_POST["submit"]=="Update")){
 				$execute=0;
+				$resume=0;
 				// 1. check if the data make sense
 				if($_POST["e_name"]=="-" or empty($_POST["e_name"])){
 					$execute=0;
 					$resume=1;
 					show_info("You have to provide a name");
-				} elseif($_POST["e_badge"]=="-" or empty($_POST["e_badge"]) or !is_numeric($_POST["e_badge"])){
+				} elseif($_POST["e_badge"]=="-" or empty($_POST["e_badge"]) or !is_numeric($_POST["e_badge"]) or strlen($_POST["e_badge"])>10 or strlen($_POST["e_badge"])<8){
 					$execute=0;
 					$resume=1;
-					show_info("You have to provide a numeric Badge id");
+					show_info("You have to provide a 10-digit numeric Badge id");
 				} elseif($_POST["e_email"]=="-" or empty($_POST["e_email"]) or !filter_var($_POST["e_email"], FILTER_VALIDATE_EMAIL)){
 					$execute=0;
 					$resume=1;
@@ -63,37 +64,44 @@ $resume=0;
 					$resume=1;
 					show_info("No login without pw");
 				} else {
+					// run some checks before we accept the data
+					// check if there is already the same badge
+					$stmt = $db->prepare("SELECT COUNT(*) FROM `macs`.`user` WHERE badge_id=:badge_id and `active`=1");
 					if($_POST["e_id"]!=0){ // update
-						$stmt = $db->prepare("UPDATE  `macs`.`user` SET `name` = :name,`badge_id` = :badge_id,`email`=:email,`login`=:login,`hash`=:hash WHERE  `user`.`id` =:id;");
+						$stmt = $db->prepare("SELECT COUNT(*) FROM `macs`.`user` WHERE badge_id=:badge_id and `active`=1 and `user`.`id` !=:id;");
 						$stmt->bindParam(":id",$_POST["e_id"],PDO::PARAM_INT);
-						$execute=1;
+					}
+					$stmt->bindParam(":badge_id",$_POST["e_badge"],PDO::PARAM_INT);
+					$stmt->execute();
+					foreach($stmt as $row){
+						if($row["COUNT(*)"]>0){
+							$excute=0;
+							$resume=1;
+							add_log("-","-","Badge ID already in db, entry rejected","-");
+							show_info("Entry rejected, duplicate badge");
+						}
+					}
 
-						// mark all machines that were affected by this change as updateable
-						$stmt2 = $db->prepare("SELECT `mach_id` FROM  `macs`.`access` WHERE  `user_id` =:id;");
-						$stmt2->bindParam(":id",$_POST["e_id"],PDO::PARAM_INT);
-						$stmt2->execute();
-						foreach($stmt2 as $row){
-							set_mach_outdated($row["mach_id"],$db);
-						};
+					if($resume==0){
+						// prepare statements
+						if($_POST["e_id"]!=0){ // update
+							$stmt = $db->prepare("UPDATE  `macs`.`user` SET `name` = :name,`badge_id` = :badge_id,`email`=:email,`login`=:login,`hash`=:hash WHERE  `user`.`id` =:id;");
+							$stmt->bindParam(":id",$_POST["e_id"],PDO::PARAM_INT);
+							$execute=1;
 
-					} else {
-						// run some checks before we accept the data
-						// 2. check if there is already the same badge
-						$stmt = $db->prepare("SELECT COUNT(*) FROM `macs`.`user` WHERE badge_id=:badge_id and `active`=1");
-						$stmt->bindParam(":badge_id",$_POST["e_badge"],PDO::PARAM_INT);
-						$stmt->execute();
-						foreach($stmt as $row){
-							if($row["COUNT(*)"]>0){
-								$excute=0;
-								$resume=1;
-								add_log("-","-","Badge ID already in db, entry rejected","-");
-								show_info("Entry rejected, duplicate badge");
-							} else {
-								$stmt = $db->prepare("INSERT INTO  `macs`.`user` (`name`,`badge_id`,`email`,`active`,`login`,`hash`) VALUE (:name,:badge_id,:email,1,:login,:hash)");
-								$execute=1;
+							// mark all machines that were affected by this change as updateable
+							$stmt2 = $db->prepare("SELECT `mach_id` FROM  `macs`.`access` WHERE  `user_id` =:id;");
+							$stmt2->bindParam(":id",$_POST["e_id"],PDO::PARAM_INT);
+							$stmt2->execute();
+							foreach($stmt2 as $row){
+								set_mach_outdated($row["mach_id"],$db);
 							};
-						} // for each
-					} // else 
+
+						} else {
+							$stmt = $db->prepare("INSERT INTO  `macs`.`user` (`name`,`badge_id`,`email`,`active`,`login`,`hash`) VALUE (:name,:badge_id,:email,1,:login,:hash)");
+							$execute=1;
+						} // else 
+					} // resume == 0
 				}
 				
 				if($execute==1){
@@ -156,6 +164,7 @@ $resume=0;
 			}
 			elseif(isset($_POST["submit"]) & ($_POST["submit"]=="Add" || $_POST["submit"]=="Update")){
 				$execute=0;
+				$resume=0;
 				// check if the data make sense
 				if($_POST["e_name"]=="-" or empty($_POST["e_name"])){
 					$execute=0;
@@ -178,30 +187,37 @@ $resume=0;
 					$resume=1;
 					show_info("Please limit name to 12 chars");
 				} else {
+					// is machine id already used?
+					$stmt = $db->prepare("SELECT COUNT(*) FROM `macs`.`mach` WHERE mach_nr=:machine_id");
 					if($_POST["e_id"]!=0){ // update
-						$stmt = $db->prepare("UPDATE  `macs`.`mach` SET `name` = :name,`mach_nr` = :mach_nr,`desc`=:desc WHERE  `mach`.`id` =:id;");
+						$stmt = $db->prepare("SELECT COUNT(*) FROM `macs`.`mach` WHERE mach_nr=:machine_id and  `mach`.`id` !=:id;");
 						$stmt->bindParam(":id",$_POST["e_id"],PDO::PARAM_INT);
-						$execute=1;
+					};
+					$stmt->bindParam(":machine_id",$_POST["e_mach_nr"],PDO::PARAM_INT);
+					$stmt->execute();
+					foreach($stmt as $row){
+						if($row["COUNT(*)"]>0){
+							$excute=0;
+							$resume=1;
+							add_log("-","-","Mach ID already in db, entry rejected","-");
+							show_info("Entry rejected, duplicate id");
+						}
+					}
+			
+					if($resume==0){
+						if($_POST["e_id"]!=0){ // update
+							$stmt = $db->prepare("UPDATE  `macs`.`mach` SET `name` = :name,`mach_nr` = :mach_nr,`desc`=:desc WHERE  `mach`.`id` =:id;");
+							$stmt->bindParam(":id",$_POST["e_id"],PDO::PARAM_INT);
+							$execute=1;
 
-						// insert entry that this machine might need an update
-						set_mach_outdated($_POST["e_id"],$db);
+							// insert entry that this machine might need an update
+							set_mach_outdated($_POST["e_id"],$db);
 
-					} else {
-						$stmt = $db->prepare("SELECT COUNT(*) FROM `macs`.`mach` WHERE mach_nr=:machine_id");
-						$stmt->bindParam(":machine_id",$_POST["e_mach_nr"],PDO::PARAM_INT);
-						$stmt->execute();
-						foreach($stmt as $row){
-							if($row["COUNT(*)"]>0){
-								$excute=0;
-								$resume=1;
-								add_log("-","-","Mach ID already in db, entry rejected","-");
-								show_info("Entry rejected, duplicate id");
-							} else {
-								$stmt = $db->prepare("INSERT INTO  `macs`.`mach` (`name`,`mach_nr`,`desc`,`active`) VALUE (:name,:mach_nr,:desc,1)");
-								$execute=1;
-							};
-						} // for each
-					} // insert
+						} else {
+							$stmt = $db->prepare("INSERT INTO  `macs`.`mach` (`name`,`mach_nr`,`desc`,`active`) VALUE (:name,:mach_nr,:desc,1)");
+							$execute=1;
+						} // insert
+					};
 				} // if check ok
 
 				if($execute==1){
@@ -525,6 +541,12 @@ $o.='<tr><td>';
 
 $o.='<iframe width="100%" height="400" src="php_module/module_setup.php" border="0"></iframe>';
 //////////////// setup /////////////////
+
+//////////////// backup /////////////////
+$o.='</td></tr><tr class="spacer"><td>&nbsp;</td></tr><tr class="header click '.hide_table("backup").'"><td>+ Backup DB<a name="backup"></a></td></tr><tr><td>';
+$o.='<tr><td>';
+$o.='<iframe width="100%" height="60" src="php_module/module_backup.php" border="0"></iframe>';
+//////////////// backup /////////////////
 
 $o.='</td></tr></table><br><br><br>';
 
