@@ -9,7 +9,7 @@
 #include "wifi_login.h"
 #include "rest_client.h"
 
-
+#define UPDATECARD 1234567890
 
 #define MAX_JUMPER_PIN 6 // 2^(6+1)-1=127
 
