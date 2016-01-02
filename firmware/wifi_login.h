@@ -7,3 +7,4 @@ bool get_wifi_config(uint8_t id, String *_SSID, String *_pw, int *_type);
 bool check_wifi_config(String SSID,String pw,uint8_t type,uint8_t chk);
 bool parse_wifi();
 void listen(system_event_t event, uint32_t param, void* pointer);
+bool is_wifi_connected();

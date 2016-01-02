@@ -204,7 +204,7 @@ bool set_login(LED *green, LED *red, uint8_t mode){
             IPAddress myAddress(192,168,1,100+get_my_id());
             IPAddress netmask(255,255,255,0);
             IPAddress gateway(192,168,1,1);
-            IPAddress dns(192,168,1,1);
+            IPAddress dns(192,168,188,254);
             WiFi.setStaticIP(myAddress, netmask, gateway, dns);
         
             // now let's use the configured IP
@@ -241,6 +241,21 @@ bool set_login(LED *green, LED *red, uint8_t mode){
 	return false;
 }
 
+bool is_wifi_connected(){
+    IPAddress dns(192,168,188,254);
+    if(WiFi.ping(dns,1)>0){
+        return true;
+    } else {
+        if(WiFi.ping(dns,1)>0){
+            return true;
+        } else {
+            if(WiFi.ping(dns,1)>0){
+                return true;
+            }
+        }   
+    }
+    return false;
+};
 
 
 // read data from EEPROM, check them and set them if the check is passed
@@ -313,18 +328,18 @@ bool get_wifi_config(uint8_t id, String *_SSID, String *_pw, int *_type){
         if(id==WIFI_MACS){
             memcpy(SSID,"macs",4);
             memcpy(pw,"6215027094",10);
-            type=3;
+            type=3; // wpa2
             chk=0x17;
         } else if(id==WIFI_UPDATE_1){
             memcpy(SSID,"ajlokert",8);
             memcpy(pw,"qweqweqwe",9);
-            type=3;
+            type=3; // wpa2 
             chk=0x60;
         } else if(id==WIFI_UPDATE_2){
             memcpy(SSID,"shop",4);
             memcpy(pw,"abcdefgh",8);
-            type=3;
-            chk=0x0F;
+            type=2; // WPA
+            chk=0x0E;
         }
     }
     
@@ -510,7 +525,7 @@ bool parse_wifi(){
     // buffer is 64 byte (id(1)+<tab>+SSID(20)+<tab>+pw(20)+<tab>+type(1)+<tab>+chk(1)+<tab>)=48
     // e.g. 00 09 6d 61 63 73 09 36 32 31 35 30 32 37 30 39 34 09 03 09 17 09
     // e.g. 01 09 61 6a 6c 6f 6b 65 72 74 09 71 77 65 71 77 65 71 77 65 09 03 09 60 09
-    // e.g. 02 09 73 68 6f 70 09 61 62 63 64 65 66 67 68 09 03 09 0F 09
+    // e.g. 02 09 73 68 6f 70 09 61 62 63 64 65 66 67 68 09 02 09 0E 09
     //Serial.print("available:");
     //Serial.println(Serial.available());
     delay(1000); // give buffer time to fill
