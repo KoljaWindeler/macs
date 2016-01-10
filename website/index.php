@@ -51,10 +51,10 @@ $resume=0;
 					$execute=0;
 					$resume=1;
 					show_info("You have to provide a name");
-				} elseif($_POST["e_badge"]=="-" or empty($_POST["e_badge"]) or !is_numeric($_POST["e_badge"]) or strlen($_POST["e_badge"])>10 or strlen($_POST["e_badge"])<8){
+				} elseif($_POST["e_badge"]=="-" or empty($_POST["e_badge"]) or !is_numeric($_POST["e_badge"]) or strlen($_POST["e_badge"])>10 or strlen($_POST["e_badge"])<6){
 					$execute=0;
 					$resume=1;
-					show_info("You have to provide a 10-digit numeric Badge id");
+					show_info("You have to provide a 6 to 10-digit numeric Badge id");
 				} elseif($_POST["e_email"]=="-" or empty($_POST["e_email"]) or !filter_var($_POST["e_email"], FILTER_VALIDATE_EMAIL)){
 					$execute=0;
 					$resume=1;
