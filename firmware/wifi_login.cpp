@@ -201,9 +201,9 @@ bool set_login(LED *green, LED *red, uint8_t mode){
     if(WiFi.hasCredentials()){
         // set IP 
         if(mode!=UPDATE){
-            IPAddress myAddress(192,168,1,100+get_my_id());
+            IPAddress myAddress(192,168,188,100+get_my_id());
             IPAddress netmask(255,255,255,0);
-            IPAddress gateway(192,168,1,1);
+            IPAddress gateway(192,168,188,254);
             IPAddress dns(192,168,188,254);
             WiFi.setStaticIP(myAddress, netmask, gateway, dns);
         

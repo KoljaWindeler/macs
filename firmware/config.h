@@ -73,6 +73,7 @@
 // debug
 //#define DEBUG_JKW 1
 //#define DEBUG_JKW_MAIN 1
+//#define LOGGING // rest client
 //#define DEBUG_JKW_LED 1
 //#define DEBUG_JKW_WIFI  1
 
