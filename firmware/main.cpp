@@ -30,7 +30,7 @@
 
 // network
 IPAddress HOSTNAME(192,168,188,23);
-uint32_t v=20151231;
+uint32_t v=20160213;
 
 uint8_t keys_available=0;
 uint32_t keys[MAX_KEYS];
@@ -496,7 +496,7 @@ bool update_ids(bool forced){
     
     if(!is_wifi_connected()){
         if(!set_macs_login(&green_led,&red_led)){
-            set_connected(0);
+            set_connected(0,true);
             return false;
         }
     }
@@ -558,7 +558,7 @@ bool update_ids(bool forced){
     }
 
     // connection looks good
-    set_connected(1);
+    set_connected(1,true); // force update LEDs as the reconnect might have overwritten the LED mode
     
     // check if we've received a "no update" message from the server
     // if we are unforced we'll just leave our EEPROM as is.

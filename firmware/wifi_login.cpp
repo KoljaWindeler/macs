@@ -592,7 +592,7 @@ bool parse_wifi(){
 }
     
     
-void listen(system_event_t event, uint32_t param, void* pointer){
+void listen(system_event_t event){
     if (event==wifi_listen_update){
         WiFi.disconnect();
         WiFi.listen(false); 
