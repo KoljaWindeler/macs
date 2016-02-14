@@ -96,7 +96,17 @@ foreach ($stmt as $row) {
 			$extra="by "."db hickup";
 		};
 	} else if($row["usage"]!="-" && !empty($row["usage"]) && $extra=="-"){
-		$extra="Usage ".date("H:i:s",$row["usage"]);
+		$d[0]=floor($row["usage"]/3600);
+		$d[1]=floor(($row["usage"]%3600)/60);
+		$d[2]=$row["usage"]%60;
+		for($i=0; $i<3; $i++){
+			$ii=0;
+			while(strlen($d[$i])<2 && $ii<5){
+				$d[$i]="0".$d[$i];
+				$ii++;
+			}
+		}
+		$extra="Usage ".$d[0].":".$d[1].":".$d[2];
 	};
 	
 	$row["event"]=str_replace(";",",",$row["event"]);
