@@ -7,7 +7,7 @@ date_default_timezone_set("UTC");
 session_start();
 require_once("helper.php");
 //require_once("sec.php");
-require_once("con.php");
+require_once("db_con.php");
 require_once("data.php");
 require_once("history.php");
 require_once("html.php");

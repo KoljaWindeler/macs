@@ -1,5 +1,5 @@
 <?php
-include_once("con.php");
+include_once("db_con.php");
 if(isset($_GET["logout"])){
 	$_SESSION['ID']=0;
 	$_SESSION['bg']="";

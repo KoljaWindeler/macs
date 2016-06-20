@@ -6,7 +6,7 @@ error_reporting(-1);
 session_start();
 require_once("../helper.php");
 //require_once("sec.php");
-require_once("../con.php");
+require_once("../db_con.php");
 require_once("../data.php");
 
 $DEBUG=0;

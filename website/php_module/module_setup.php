@@ -1,5 +1,5 @@
 <?php
-include_once('../con.php');
+include_once('../db_con.php');
 $db_wifi="";
 $status="";
 $o_setup="";

@@ -1,5 +1,5 @@
 <?php
-include_once('../con.php');
+include_once('../db_con.php');
 $f="/tmp/macs_config.txt";
 $myfile = fopen($f, "w") or die("Unable to open file!");
 

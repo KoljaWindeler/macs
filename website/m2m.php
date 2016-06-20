@@ -1,5 +1,5 @@
 <?php
-require_once('con.php');
+require_once('db_con.php');
 if(isset($_GET["mach_nr"])){
 	$machine_known=0;
 	$stmt = $db->prepare("SELECT COUNT(*) FROM mach where mach_nr=:id");

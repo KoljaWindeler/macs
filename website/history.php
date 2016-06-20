@@ -5,7 +5,7 @@ ini_set('display_startup_errors',1);
 error_reporting(-1);
 
 
-require_once('con.php');
+require_once('db_con.php');
 if(isset($_GET["logme"]) && isset($_GET["event"]) && (isset($_GET["mach_nr"]) || isset($_GET["badge"]))){
 	$event=$_GET["event"];
 
